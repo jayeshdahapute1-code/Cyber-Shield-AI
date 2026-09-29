@@ -8,6 +8,7 @@ import android.net.Uri;
 import java.security.MessageDigest;
 import android.provider.Settings;
 import android.view.*;
+import android.widget.EditText;
 import android.content.pm.*;
 import android.text.InputType;
 import java.util.*;
