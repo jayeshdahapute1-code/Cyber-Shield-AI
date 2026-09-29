@@ -296,8 +296,8 @@ public class MainActivity extends Activity {
                 int ac=(Integer)a[i][3];
                 rect(c,l,t,l+160,t+50,PANEL,14);stroke(c,l,t,l+160,t+50,Color.rgb(30,61,82),14);
                 rect(c,l+8,t+9,l+39,t+40,Color.argb(38,Color.red(ac),Color.green(ac),Color.blue(ac)),10);
-                txt(c,a[i][1],l+24,t+29,16,ac,Paint.Align.CENTER);
-                bold(c,a[i][2],l+51,t+30,10,WHITE,Paint.Align.LEFT);
+                txt(c,(String)a[i][1],l+24,t+29,16,ac,Paint.Align.CENTER);
+                bold(c,(String)a[i][2],l+51,t+30,10,WHITE,Paint.Align.LEFT);
                 add((String)a[i][0],l,t,l+160,t+50);
             }
 
