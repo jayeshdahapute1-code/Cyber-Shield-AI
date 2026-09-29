@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
             float gap=u(9), bw=(W-u(44)-gap*2)/3, y=u(338), bh=u(58), step=u(66);
             String[][] items={{"apps","APP SECURITY","▣","0,255,150"},{"msg","MESSAGES","▤","0,220,255"},{"mail","EMAIL","✉","0,220,255"},{"link","LINK SCAN","⌁","0,255,150"},{"apk","APK GUARD","⚠","255,55,65"},{"wifi","WI-FI","⌁","0,220,255"},{"call","CALL GUARD","☎","0,255,150"},{"file","FILES","□","255,210,0"},{"ai","AI ASSISTANT","◉","220,80,255"}};
             for(int i=0;i<items.length;i++){int row=i/3,col=i%3;float l=u(22)+col*(bw+gap),t=y+row*step;int color=parse(items[i][3]);box(c,l,t,l+bw,t+bh,CARD,12);outline(c,l,t,l+bw,t+bh,color,12);text(c,items[i][2],l+u(18),t+u(24),17,color,Paint.Align.CENTER);text(c,items[i][1],l+bw/2,t+u(45),9,Color.WHITE,Paint.Align.CENTER);hit.put(items[i][0],new RectF(l,t,l+bw,t+bh));}
-            float fy=u(545);text(c,"PROTECTION MODULES",u(22),fy,11,Color.GRAY,Paint.Align.LEFT);text(c,"12 ACTIVE",W-u(22),fy,GREEN,Paint.Align.RIGHT);
+            float fy=u(545);text(c,"PROTECTION MODULES",u(22),fy,11,Color.GRAY,Paint.Align.LEFT);text(c,"12 ACTIVE",W-u(22),fy,11,GREEN,Paint.Align.RIGHT);
             button(c,"reports","REPORTS",u(22),u(560),(W-u(44))/2-u(4),u(606),Color.LTGRAY);button(c,"settings","SETTINGS",W/2+u(4),u(560),W-u(22),u(606),Color.LTGRAY);
             text(c,"CyberShield AI • v1.1",W/2,u(625),9,Color.DKGRAY,Paint.Align.CENTER);
             c.restore();
