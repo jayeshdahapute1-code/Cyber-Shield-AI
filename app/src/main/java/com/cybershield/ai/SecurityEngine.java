@@ -31,4 +31,27 @@ public final class SecurityEngine {
         boolean valid=x.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED),metered=!x.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
         return type+" • "+(valid?"Internet validated":"Internet not validated")+" • "+(metered?"Metered":"Unmetered");
     }
+    public static String normalizeNumber(String n){return n==null?"":n.replaceAll("[^0-9+]","");}
+    public static String appReport(Context c){
+        PackageManager pm=c.getPackageManager(); StringBuilder b=new StringBuilder(); int count=0;
+        List<ApplicationInfo> apps=pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        for(ApplicationInfo a:apps){
+            if((a.flags&ApplicationInfo.FLAG_SYSTEM)!=0) continue;
+            count++;
+            try{
+                android.content.pm.PackageInfo pi=pm.getPackageInfo(a.packageName,PackageManager.GET_PERMISSIONS);
+                b.append("• ").append(pm.getApplicationLabel(a)).append("\n").append(a.packageName).append("\nVersion: ").append(pi.versionName==null?"unknown":pi.versionName).append("\n");
+                if(pi.requestedPermissions!=null){
+                    b.append("Permissions: ");
+                    int limit=Math.min(5,pi.requestedPermissions.length);
+                    for(int i=0;i<limit;i++){String q=pi.requestedPermissions[i];b.append(q.substring(q.lastIndexOf('.')+1));if(i+1<limit)b.append(", ");}
+                    if(pi.requestedPermissions.length>5)b.append(" +").append(pi.requestedPermissions.length-5).append(" more");
+                    b.append("\n");
+                }
+                b.append("\n");
+            }catch(Exception ignored){}
+        }
+        return "Installed apps: "+count+"\n\n"+b.toString();
+    }
+
 }
