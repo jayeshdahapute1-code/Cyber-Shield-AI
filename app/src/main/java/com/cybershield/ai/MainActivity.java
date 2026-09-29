@@ -4,7 +4,6 @@ import android.app.*;
 import android.os.*;
 import android.content.*;
 import android.graphics.*;
-import android.graphics.drawable.*;
 import android.net.Uri;
 import android.provider.Settings;
 import android.view.*;
@@ -12,79 +11,244 @@ import java.util.*;
 
 public class MainActivity extends Activity {
     ShieldView view;
-    @Override public void onCreate(Bundle state) {
-        super.onCreate(state);
-        getWindow().setStatusBarColor(Color.rgb(5,8,7));
-        getWindow().setNavigationBarColor(Color.rgb(5,8,7));
-        view = new ShieldView(this);
+    @Override public void onCreate(Bundle b){
+        super.onCreate(b);
+        getWindow().setStatusBarColor(Color.rgb(2,8,7));
+        getWindow().setNavigationBarColor(Color.rgb(2,8,7));
+        view=new ShieldView(this);
         setContentView(view);
     }
 
-    void showInfo(String title, String message) {
-        new AlertDialog.Builder(this).setTitle(title).setMessage(message).setPositiveButton("OK", null).show();
+    void info(String title,String msg){
+        new AlertDialog.Builder(this).setTitle(title).setMessage(msg)
+        .setPositiveButton("OK",null).show();
     }
 
-    void showApkGuard() {
-        new AlertDialog.Builder(this)
-            .setTitle("⚠ APK Guard")
-            .setMessage("Third-party APK detected.\n\nRisk: HIGH\n• Unknown source\n• Signature not verified\n• Dangerous permissions may be requested\n• Scan before installing\n\nCyberShield AI cannot silently block Android's installer on a normal device, but it can warn and guide you.")
-            .setNegativeButton("Cancel", null)
-            .setNeutralButton("Unknown Sources", (d,w) -> {
-                try {
-                    Intent i = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-                    i.setData(Uri.parse("package:" + getPackageName()));
-                    startActivity(i);
-                } catch (Exception e) { startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS)); }
-            })
-            .setPositiveButton("Scan APK", (d,w) -> showInfo("AI APK Scan", "Static security analysis is ready for the APK scanning module.\n\nResult: Do not install until the APK source and signature are verified."))
-            .show();
+    void apkGuard(){
+        new AlertDialog.Builder(this).setTitle("APK Guard")
+        .setMessage("Third-party APK protection\n\nRisk checks:\n• Unknown source\n• Package/signature information\n• Requested permissions\n• Suspicious behavior indicators\n\nNormal Android apps cannot silently control every installer action. CyberShield AI can warn and guide the user.")
+        .setNegativeButton("Cancel",null)
+        .setNeutralButton("Unknown Sources",(d,w)->{
+            try{
+                Intent i=new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+                i.setData(Uri.parse("package:"+getPackageName()));
+                startActivity(i);
+            }catch(Exception e){startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));}
+        })
+        .setPositiveButton("Scan APK",(d,w)->info("AI APK Scan","Static analysis module ready.\n\nResult: verify the source and signature before installing." )).show();
     }
 
     class ShieldView extends View {
-        final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        final int GREEN=Color.rgb(0,255,150), CYAN=Color.rgb(0,220,255), RED=Color.rgb(255,55,65), BG=Color.rgb(5,8,7), CARD=Color.rgb(10,20,19);
-        final HashMap<String,RectF> hit = new HashMap<>();
-        float d, s=1f;
-        ShieldView(Context c){ super(c); d=getResources().getDisplayMetrics().density; }
-        float u(float v){ return v*d*s; }
-        void text(Canvas c,String t,float x,float y,float size,int color,Paint.Align align){ p.setStyle(Paint.Style.FILL);p.setColor(color);p.setTextSize(u(size));p.setTextAlign(align);p.setTypeface(Typeface.create("sans",Typeface.NORMAL));c.drawText(t,x,y,p); }
-        void box(Canvas c,float l,float t,float r,float b,int color,float rad){p.setStyle(Paint.Style.FILL);p.setColor(color);c.drawRoundRect(l,t,r,b,u(rad),u(rad),p);}
-        void outline(Canvas c,float l,float t,float r,float b,int color,float rad){p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(u(1.2f));p.setColor(color);c.drawRoundRect(l,t,r,b,u(rad),u(rad),p);p.setStyle(Paint.Style.FILL);}
-        void button(Canvas c,String id,String label,float l,float t,float r,float b,int color){box(c,l,t,r,b,Color.rgb(7,25,22),14);outline(c,l,t,r,b,color,14);text(c,label,(l+r)/2,t+(b-t)/2+5,13,color,Paint.Align.CENTER);hit.put(id,new RectF(l,t,r,b));}
+        final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
+        final int BG=Color.rgb(2,8,7), PANEL=Color.rgb(6,20,18), PANEL2=Color.rgb(8,28,25);
+        final int GREEN=Color.rgb(0,255,145), CYAN=Color.rgb(0,220,255), RED=Color.rgb(255,55,70);
+        final int WHITE=Color.rgb(238,250,248), MUTED=Color.rgb(145,170,165), YELLOW=Color.rgb(255,210,40), PURPLE=Color.rgb(220,80,255);
+        final HashMap<String,RectF> hit=new HashMap<>();
+        String screen="home";
+        float S=1f,OX=0,OY=0;
+
+        ShieldView(Context c){super(c);p.setTypeface(Typeface.create("sans",Typeface.NORMAL));setFocusable(true);}
+        float X(float v){return OX+v*S;} float Y(float v){return OY+v*S;}
+        void fill(Canvas c,int col){c.drawColor(col);}
+        void rect(Canvas c,float l,float t,float r,float b,int col,float rad){p.setStyle(Paint.Style.FILL);p.setColor(col);c.drawRoundRect(X(l),Y(t),X(r),Y(b),rad*S,rad*S,p);}
+        void stroke(Canvas c,float l,float t,float r,float b,int col,float rad){p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1.4f*S);p.setColor(col);c.drawRoundRect(X(l),Y(t),X(r),Y(b),rad*S,rad*S,p);p.setStyle(Paint.Style.FILL);}
+        void txt(Canvas c,String s,float x,float y,float size,int col,Paint.Align a){p.setStyle(Paint.Style.FILL);p.setColor(col);p.setTextSize(size*S);p.setTextAlign(a);p.setTypeface(Typeface.create("sans",Typeface.NORMAL));c.drawText(s,X(x),Y(y),p);}
+        void bold(Canvas c,String s,float x,float y,float size,int col,Paint.Align a){p.setStyle(Paint.Style.FILL);p.setColor(col);p.setTextSize(size*S);p.setTextAlign(a);p.setTypeface(Typeface.create("sans",Typeface.BOLD));c.drawText(s,X(x),Y(y),p);p.setTypeface(Typeface.DEFAULT);}
+        void line(Canvas c,float x1,float y1,float x2,float y2,int col,float w){p.setColor(col);p.setStrokeWidth(w*S);c.drawLine(X(x1),Y(y1),X(x2),Y(y2),p);}
+        void add(String id,float l,float t,float r,float b){hit.put(id,new RectF(X(l),Y(t),X(r),Y(b)));}
+
         @Override protected void onDraw(Canvas c){
-            super.onDraw(c); hit.clear(); c.drawColor(BG);
-            float W=getWidth(), H=getHeight();
-            float baseH=640*d; s=Math.min(1f, Math.max(0.72f,(H-8*d)/baseH));
-            c.save(); c.translate(0,4*d);
-            p.setColor(Color.rgb(7,35,29));p.setStrokeWidth(1);for(float x=0;x<W;x+=u(28))c.drawLine(x,0,x,H,p);for(float y=0;y<H;y+=u(28))c.drawLine(0,y,Math.min(W,u(420)),y,p);
-            text(c,"CyberShield",u(22),u(38),24,Color.WHITE,Paint.Align.LEFT); text(c,"AI",u(182),u(38),24,GREEN,Paint.Align.LEFT);
-            text(c,"REAL-TIME MOBILE DEFENSE",u(22),u(57),9,Color.GRAY,Paint.Align.LEFT);
-            float cx=W/2, sy=u(76); Path sh=new Path();sh.moveTo(cx,sy);sh.lineTo(cx+u(65),sy+u(25));sh.lineTo(cx+u(52),sy+u(92));sh.quadTo(cx,sy+u(136),cx-u(52),sy+u(92));sh.lineTo(cx-u(65),sy+u(25));sh.close();p.setColor(Color.rgb(8,55,39));c.drawPath(sh,p);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(u(3));p.setColor(GREEN);c.drawPath(sh,p);p.setStyle(Paint.Style.FILL);text(c,"✓",cx,sy+u(86),45,GREEN,Paint.Align.CENTER);
-            text(c,"DEVICE SECURE",cx,u(235),21,GREEN,Paint.Align.CENTER);text(c,"No active threats detected",cx,u(256),12,Color.LTGRAY,Paint.Align.CENTER);
-            button(c,"scan","◉  SMART SCAN",u(22),u(275),W-u(22),u(322),CYAN);
-            float gap=u(9), bw=(W-u(44)-gap*2)/3, y=u(338), bh=u(58), step=u(66);
-            String[][] items={{"apps","APP SECURITY","▣","0,255,150"},{"msg","MESSAGES","▤","0,220,255"},{"mail","EMAIL","✉","0,220,255"},{"link","LINK SCAN","⌁","0,255,150"},{"apk","APK GUARD","⚠","255,55,65"},{"wifi","WI-FI","⌁","0,220,255"},{"call","CALL GUARD","☎","0,255,150"},{"file","FILES","□","255,210,0"},{"ai","AI ASSISTANT","◉","220,80,255"}};
-            for(int i=0;i<items.length;i++){int row=i/3,col=i%3;float l=u(22)+col*(bw+gap),t=y+row*step;int color=parse(items[i][3]);box(c,l,t,l+bw,t+bh,CARD,12);outline(c,l,t,l+bw,t+bh,color,12);text(c,items[i][2],l+u(18),t+u(24),17,color,Paint.Align.CENTER);text(c,items[i][1],l+bw/2,t+u(45),9,Color.WHITE,Paint.Align.CENTER);hit.put(items[i][0],new RectF(l,t,l+bw,t+bh));}
-            float fy=u(545);text(c,"PROTECTION MODULES",u(22),fy,11,Color.GRAY,Paint.Align.LEFT);text(c,"12 ACTIVE",W-u(22),fy,11,GREEN,Paint.Align.RIGHT);
-            button(c,"reports","REPORTS",u(22),u(560),(W-u(44))/2-u(4),u(606),Color.LTGRAY);button(c,"settings","SETTINGS",W/2+u(4),u(560),W-u(22),u(606),Color.LTGRAY);
-            text(c,"CyberShield AI • v1.1",W/2,u(625),9,Color.DKGRAY,Paint.Align.CENTER);
-            c.restore();
+            super.onDraw(c);
+            float W=getWidth(),H=getHeight();
+            S=Math.min(W/360f,H/760f); OX=(W-360*S)/2f; OY=0;
+            fill(c,BG); grid(c);
+            if(screen.equals("home"))home(c);
+            else if(screen.equals("scan"))scan(c);
+            else if(screen.equals("threat"))threat(c);
+            else if(screen.equals("messages"))messages(c);
+            else if(screen.equals("email"))email(c);
+            else if(screen.equals("link"))link(c);
+            else if(screen.equals("apps"))apps(c);
+            else if(screen.equals("apk"))apk(c);
+            else if(screen.equals("wifi"))wifi(c);
+            else if(screen.equals("calls"))calls(c);
+            else if(screen.equals("settings"))settings(c);
+            else if(screen.equals("reports"))reports(c);
+            else if(screen.equals("ai"))ai(c);
+            nav(c);
         }
-        int parse(String rgb){String[] a=rgb.split(",");return Color.rgb(Integer.parseInt(a[0]),Integer.parseInt(a[1]),Integer.parseInt(a[2]));}
-        @Override public boolean onTouchEvent(MotionEvent e){if(e.getAction()!=MotionEvent.ACTION_UP)return true;float x=e.getX()/s,y=(e.getY()-4*d)/s;for(Map.Entry<String,RectF> en:hit.entrySet())if(en.getValue().contains(x,y)){act(en.getKey());return true;}return true;}
-        void act(String id){
-            if(id.equals("scan"))showInfo("Smart Scan","SCAN COMPLETE ✓\n\nApps: SAFE\nMessages: CHECKED\nEmail: CHECKED\nLinks: CHECKED\nFiles: CHECKED\nNetwork: CHECKED\n\nThreat level: LOW\nDevice protection: ACTIVE");
-            else if(id.equals("apk"))showApkGuard();
-            else if(id.equals("link"))showInfo("Link Scanner","Paste or share a URL with CyberShield AI to analyze phishing, malware and suspicious-domain indicators.");
-            else if(id.equals("msg"))showInfo("Message Scanner","AI protection can flag scam patterns, suspicious senders and dangerous links in supported message workflows.");
-            else if(id.equals("mail"))showInfo("Email Scanner","Analyze phishing, spoofing indicators, suspicious links and malicious attachments in supported email workflows.");
-            else if(id.equals("apps"))showInfo("App Security","Installed apps can be reviewed for package information, permissions and known-risk indicators.");
-            else if(id.equals("wifi"))showInfo("Wi-Fi Security","Network check: ready\nEncryption: inspectable\nRisk: calculate from network configuration.");
-            else if(id.equals("call"))showInfo("Call Guard","Call screening and spam warnings can be connected to supported Android APIs.");
-            else if(id.equals("file"))showInfo("File Scanner","Select a file/APK for metadata and threat-indicator analysis.");
-            else if(id.equals("ai"))showInfo("AI Security Assistant","Ask:\n• Is this message safe?\n• Check this link.\n• Is this APK risky?\n• Explain this security alert.");
-            else if(id.equals("reports"))showInfo("Reports","Security activity dashboard\n\nScans: 42\nSafe: 28\nSuspicious: 8\nBlocked: 6");
-            else if(id.equals("settings"))showInfo("Settings","Real-time protection: ON\nAI analysis: ON\nAPK Guard: ON\nPrivacy controls: available");
+
+        void grid(Canvas c){
+            p.setStrokeWidth(0.6f*S);p.setColor(Color.rgb(8,38,33));
+            for(int x=0;x<=360;x+=24)c.drawLine(X(x),Y(0),X(x),Y(760),p);
+            for(int y=0;y<=760;y+=24)c.drawLine(X(0),Y(y),X(360),Y(y),p);
+        }
+        void top(Canvas c,String title){
+            txt(c,"‹",18,39,34,WHITE,Paint.Align.CENTER);
+            bold(c,title,42,34,17,WHITE,Paint.Align.LEFT);
+            txt(c,"⋮",338,34,25,MUTED,Paint.Align.CENTER);
+            add("back",0,0,55,65);
+        }
+        void brand(Canvas c){
+            bold(c,"CyberShield",22,36,24,WHITE,Paint.Align.LEFT);
+            bold(c,"AI",182,36,24,GREEN,Paint.Align.LEFT);
+            txt(c,"YOUR DIGITAL GUARDIAN",22,55,8,MUTED,Paint.Align.LEFT);
+        }
+        void shield(Canvas c,float cx,float cy,float r){
+            Path q=new Path();q.moveTo(X(cx),Y(cy-r));q.lineTo(X(cx+r*.78f),Y(cy-r*.62f));q.lineTo(X(cx+r*.62f),Y(cy+r*.42f));q.quadTo(X(cx),Y(cy+r),X(cx-r*.62f),Y(cy+r*.42f));q.lineTo(X(cx-r*.78f),Y(cy-r*.62f));q.close();
+            p.setStyle(Paint.Style.FILL);p.setColor(Color.rgb(4,47,36));c.drawPath(q,p);
+            p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(3*S);p.setColor(GREEN);c.drawPath(q,p);p.setStyle(Paint.Style.FILL);
+            txt(c,"✓",cx,cy+18,48,GREEN,Paint.Align.CENTER);
+        }
+        void card(Canvas c,float y,float h,int accent,String title,String sub){
+            rect(c,12,y,348,y+h,PANEL,16);stroke(c,12,y,348,y+h,accent,16);
+            bold(c,title,28,y+28,15,WHITE,Paint.Align.LEFT);
+            txt(c,sub,28,y+48,11,MUTED,Paint.Align.LEFT);
+        }
+        void button(Canvas c,String id,String label,float l,float t,float r,float b,int accent){
+            rect(c,l,t,r,b,Color.rgb(4,25,22),16);stroke(c,l,t,r,b,accent,16);
+            txt(c,label,(l+r)/2,t+(b-t)/2+5,13,accent,Paint.Align.CENTER);add(id,l,t,r,b);
+        }
+        void home(Canvas c){
+            brand(c);shield(c,180,135,68);
+            bold(c,"DEVICE SECURE",180,220,24,CYAN,Paint.Align.CENTER);
+            txt(c,"No threats found",180,241,12,WHITE,Paint.Align.CENTER);
+            rect(c,15,255,345,310,PANEL,18);stroke(c,15,255,345,310,Color.rgb(20,90,75),18);
+            txt(c,"Last Scan",72,277,9,MUTED,Paint.Align.CENTER);bold(c,"Today 09:41",72,295,11,WHITE,Paint.Align.CENTER);
+            txt(c,"Protection",250,277,9,MUTED,Paint.Align.CENTER);bold(c,"HIGH",250,295,11,GREEN,Paint.Align.CENTER);
+            String[][] a={{"scan","⌕","Scan Now","Full Security Scan"},{"messages","▣","Messages","SMS & WhatsApp"},{"email","✉","Emails","Phishing Scan"},{"link","⌁","Links","URL Scan"},{"apps","▦","Apps","App Check"},{"files","□","Files","File Scan"},{"wifi","⌁","Wi-Fi","Network Check"},{"apk","⚠","APK Guard","Protect"},{"settings","⚙","Settings","Security Controls"}};
+            for(int i=0;i<a.length;i++){int col=i%3,row=i/3;float l=15+col*113,t=320+row*75;int ac=i==7?RED:(i==8?PURPLE:GREEN);rect(c,l,t,l+105,t+65,PANEL,14);stroke(c,l,t,l+105,t+65,ac,14);txt(c,a[i][1],l+18,t+23,20,ac,Paint.Align.CENTER);bold(c,a[i][2],l+53,t+25,10,WHITE,Paint.Align.CENTER);txt(c,a[i][3],l+52,t+45,7,MUTED,Paint.Align.CENTER);add(a[i][0],l,t,l+105,t+65);}
+        }
+        void scan(Canvas c){
+            top(c,"Full System Scan");
+            rect(c,80,70,280,250,Color.rgb(3,25,20),80);stroke(c,80,70,280,250,GREEN,80);
+            p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(2*S);p.setColor(GREEN);c.drawCircle(X(180),Y(160),65*S,p);p.setStyle(Paint.Style.FILL);
+            txt(c,"◉",180,169,38,GREEN,Paint.Align.CENTER);
+            bold(c,"Scanning your device...",180,278,15,WHITE,Paint.Align.CENTER);
+            rect(c,32,295,328,310,Color.rgb(15,45,38),8);rect(c,32,295,235,310,GREEN,8);
+            txt(c,"68%",315,307,9,WHITE,Paint.Align.RIGHT);
+            String[] rows={"Installed Apps","Messages (SMS & WhatsApp)","Emails","Files & Storage","Network & Wi-Fi","System Security"};
+            for(int i=0;i<rows.length;i++){float y=335+i*42;txt(c,"✓",30,y,18,GREEN,Paint.Align.CENTER);bold(c,rows[i],48,y,11,WHITE,Paint.Align.LEFT);txt(c,i<3?"Scanning...":"Waiting...",330,y,9,i<3?GREEN:MUTED,Paint.Align.RIGHT);}
+            button(c,"home","STOP SCAN",105,605,255,648,Color.LTGRAY);
+        }
+        void threat(Canvas c){
+            top(c,"Threat Detected");
+            rect(c,15,65,345,135,Color.rgb(40,5,9),14);stroke(c,15,65,345,135,RED,14);txt(c,"⚠",38,103,28,RED,Paint.Align.CENTER);bold(c,"HIGH RISK",72,94,18,RED,Paint.Align.LEFT);txt(c,"Suspicious Message Found",72,116,10,WHITE,Paint.Align.LEFT);
+            card(c,150,120,CYAN,"From: +91 98765 43210","Congratulations! You won ₹50,000. Click here to claim now.");
+            card(c,280,145,RED,"AI Analysis","• Phishing pattern detected\n• Suspicious domain\n• Prize / fake offer\n• Unknown sender");
+            button(c,"block","BLOCK & DELETE",15,445,345,492,RED);
+            button(c,"home","REPORT",20,505,165,548,Color.LTGRAY);button(c,"home","IGNORE",195,505,340,548,Color.LTGRAY);
+        }
+        void messages(Canvas c){
+            top(c,"Message Scanner");
+            tabs(c,new String[]{"SMS","WhatsApp","Other Apps"});
+            String[] names={"+91 98765 43210","Bank","Unknown","Friend","Delivery","+91 87654 3210","Google"};
+            String[] states={"Dangerous","Safe","Suspicious","Safe","Safe","Safe","Safe"};
+            for(int i=0;i<7;i++){float y=120+i*58;rect(c,12,y,348,y+50,PANEL,12);txt(c,"●",31,y+29,17,i==0?RED:GREEN,Paint.Align.CENTER);bold(c,names[i],52,y+20,11,WHITE,Paint.Align.LEFT);txt(c,"Message preview and security analysis",52,y+37,8,MUTED,Paint.Align.LEFT);badge(c,302,y+12,states[i],i==0?RED:(states[i].equals("Suspicious")?YELLOW:GREEN));}
+            button(c,"scanmsg","⌕  SCAN MESSAGES",70,550,290,594,CYAN);
+        }
+        void email(Canvas c){
+            top(c,"Email Scanner");tabs(c,new String[]{"Inbox (12)","Spam (3)","All Mail"});
+            String[] n={"Amazon","PayPal","Microsoft","Bank","Job Offer","Google"};
+            String[] st={"Safe","Phishing","Suspicious","Safe","Scam","Safe"};
+            for(int i=0;i<n.length;i++){float y=120+i*63;rect(c,12,y,348,y+55,PANEL,12);txt(c,"✉",32,y+32,18,i==1||i==4?RED:CYAN,Paint.Align.CENTER);bold(c,n[i],58,y+20,11,WHITE,Paint.Align.LEFT);txt(c,"Account and security message preview",58,y+38,8,MUTED,Paint.Align.LEFT);badge(c,304,y+15,st[i],i==1||i==4?RED:(st[i].equals("Suspicious")?YELLOW:GREEN));}
+            button(c,"scanemail","✉  SCAN EMAILS",70,540,290,584,CYAN);
+        }
+        void tabs(Canvas c,String[] t){
+            float w=320f/t.length;for(int i=0;i<t.length;i++){rect(c,20+i*w,70,20+(i+1)*w,105,i==0?Color.rgb(5,60,48):PANEL,12);txt(c,t[i],20+(i+.5f)*w,92,9,i==0?GREEN:WHITE,Paint.Align.CENTER);}
+        }
+        void badge(Canvas c,float x,float y,String s,int col){rect(c,x,y,x+43,y+20,Color.argb(50,Color.red(col),Color.green(col),Color.blue(col)),8);txt(c,s,x+21,y+14,7,col,Paint.Align.CENTER);}
+        void link(Canvas c){
+            top(c,"Link Scanner");rect(c,18,72,342,112,PANEL,10);txt(c,"https://example.com",30,98,11,WHITE,Paint.Align.LEFT);button(c,"scanlink","⌕  SCAN LINK",65,122,295,165,GREEN);
+            rect(c,15,185,345,405,Color.rgb(35,6,9),16);stroke(c,15,185,345,405,RED,16);txt(c,"⚠",42,228,30,RED,Paint.Align.CENTER);bold(c,"DANGEROUS LINK",80,222,15,RED,Paint.Align.LEFT);bold(c,"https://free-reward123.com",80,245,10,WHITE,Paint.Align.LEFT);txt(c,"Risk Level",80,275,9,MUTED,Paint.Align.LEFT);badge(c,105,263,"HIGH",RED);txt(c,"Analysis Result:",30,305,10,WHITE,Paint.Align.LEFT);txt(c,"• Phishing website",30,325,9,WHITE,Paint.Align.LEFT);txt(c,"• Steals personal data",30,344,9,WHITE,Paint.Align.LEFT);txt(c,"• Not a trusted domain",30,363,9,WHITE,Paint.Align.LEFT);
+            button(c,"blocklink","BLOCK",25,425,170,468,RED);button(c,"home","OPEN ANYWAY",190,425,335,468,Color.LTGRAY);
+            rect(c,15,485,345,555,Color.rgb(4,45,30),14);bold(c,"✓  Safe Link Example",32,515,11,GREEN,Paint.Align.LEFT);txt(c,"https://www.google.com",32,535,8,MUTED,Paint.Align.LEFT);
+        }
+        void apps(Canvas c){
+            top(c,"App Security");tabs(c,new String[]{"Installed Apps","Risk Apps (3)"});
+            String[] n={"WhatsApp","Instagram","Facebook","Game Mod APK","Unknown App","Chrome"};int[] co={GREEN,GREEN,GREEN,RED,YELLOW,GREEN};
+            for(int i=0;i<n.length;i++){float y=120+i*58;rect(c,12,y,348,y+50,PANEL,12);txt(c,"▣",31,y+30,17,co[i],Paint.Align.CENTER);bold(c,n[i],55,y+20,11,WHITE,Paint.Align.LEFT);txt(c,i==3?"Malware indicators":"No issues found",55,y+37,8,MUTED,Paint.Align.LEFT);badge(c,296,y+15,i==3?"High Risk":(i==4?"Suspicious":"Safe"),co[i]);}
+            button(c,"scanapps","⌕  SCAN APPS",75,500,285,544,CYAN);
+        }
+        void apk(Canvas c){
+            top(c,"APK Guard");rect(c,12,70,348,130,Color.rgb(45,5,10),14);stroke(c,12,70,348,130,RED,14);txt(c,"⚠",35,106,25,RED,Paint.Align.CENTER);bold(c,"Third-Party App Installation",65,98,12,RED,Paint.Align.LEFT);txt(c,"Risk Detected",65,116,10,WHITE,Paint.Align.LEFT);
+            card(c,145,90,RED,"CoolGame.apk","Version 1.2.3  •  Size 42 MB\nFrom: Unknown Source");
+            rect(c,15,250,345,430,PANEL,16);stroke(c,15,250,345,430,RED,16);bold(c,"AI Analysis",30,280,14,RED,Paint.Align.LEFT);txt(c,"⚠ Not from Google Play Store",30,310,10,WHITE,Paint.Align.LEFT);txt(c,"⚠ Requests dangerous permissions",30,335,10,WHITE,Paint.Align.LEFT);txt(c,"⚠ Known bad behavior indicators",30,360,10,WHITE,Paint.Align.LEFT);txt(c,"⚠ Signature not verified",30,385,10,WHITE,Paint.Align.LEFT);bold(c,"Risk Level",30,415,10,WHITE,Paint.Align.LEFT);badge(c,105,400,"HIGH",RED);
+            button(c,"scanapk","⌕  SCAN APK",65,450,295,494,GREEN);button(c,"cancelapk","CANCEL INSTALLATION",15,510,170,554,RED);button(c,"continueapk","CONTINUE ANYWAY",185,510,345,554,Color.LTGRAY);
+        }
+        void wifi(Canvas c){
+            top(c,"Wi-Fi Security");txt(c,"◉",180,175,76,RED,Paint.Align.CENTER);bold(c,"Unsafe Network",180,220,20,RED,Paint.Align.CENTER);txt(c,"Public_WiFi_Free",180,242,11,WHITE,Paint.Align.CENTER);txt(c,"This network is not encrypted.",180,263,10,RED,Paint.Align.CENTER);
+            rect(c,15,285,345,420,PANEL,16);bold(c,"Risks:",30,315,12,WHITE,Paint.Align.LEFT);txt(c,"• Data interception",30,340,10,WHITE,Paint.Align.LEFT);txt(c,"• Password theft",30,363,10,WHITE,Paint.Align.LEFT);txt(c,"• Man-in-the-middle attack",30,386,10,WHITE,Paint.Align.LEFT);
+            button(c,"disconnect","⌁  DISCONNECT",60,445,300,488,GREEN);button(c,"home","USE VPN",60,500,300,543,Color.LTGRAY);
+        }
+        void calls(Canvas c){
+            top(c,"Call & Contact Protection");rect(c,12,72,348,170,PANEL,16);txt(c,"☎",35,120,28,GREEN,Paint.Align.CENTER);bold(c,"Incoming Call",72,104,12,WHITE,Paint.Align.LEFT);txt(c,"+91 94236 56789",72,128,13,WHITE,Paint.Align.LEFT);badge(c,260,102,"Possible Spam",RED);txt(c,"Fraud Risk",30,154,10,RED,Paint.Align.LEFT);
+            button(c,"blockcall","BLOCK",20,190,125,232,RED);button(c,"reportcall","REPORT",135,190,235,232,CYAN);button(c,"allowcall","ALLOW",245,190,340,232,GREEN);
+            card(c,260,180,Color.rgb(20,90,75),"Recent Calls","+91 94236 56789   Spam\nBank   Safe\nUnknown   Suspicious");
+        }
+        void settings(Canvas c){
+            top(c,"Settings");
+            String[][] s={{"🛡","CyberShield AI","v2.3.1 • Pro Protection"},{"◉","Security Center","Real-time protection"},{"◷","Scan Schedule","Daily 9:00 AM"},{"!","Notification Settings","Threat alerts"},{"◉","Privacy & Permissions","Control access"},{"☾","Dark Mode","ON"},{"文","Language","English"},{"?","Help & Support","Get assistance"},{"ⓘ","About Us","CyberShield AI"}};
+            for(int i=0;i<s.length;i++){float y=70+i*62;rect(c,12,y,348,y+53,PANEL,12);txt(c,s[i][0],30,y+30,17,i==0?GREEN:CYAN,Paint.Align.CENTER);bold(c,s[i][1],55,y+21,10,WHITE,Paint.Align.LEFT);txt(c,s[i][2],55,y+39,8,MUTED,Paint.Align.LEFT);txt(c,"›",330,y+31,20,MUTED,Paint.Align.CENTER);}
+        }
+        void reports(Canvas c){
+            top(c,"Security Reports");
+            rect(c,15,72,345,195,PANEL,18);bold(c,"TODAY",30,100,11,MUTED,Paint.Align.LEFT);bold(c,"42",30,150,36,GREEN,Paint.Align.LEFT);txt(c,"scans completed",30,173,10,WHITE,Paint.Align.LEFT);
+            bold(c,"28",145,150,28,CYAN,Paint.Align.CENTER);txt(c,"safe",145,173,9,WHITE,Paint.Align.CENTER);
+            bold(c,"8",220,150,28,YELLOW,Paint.Align.CENTER);txt(c,"suspicious",220,173,9,WHITE,Paint.Align.CENTER);
+            bold(c,"6",295,150,28,RED,Paint.Align.CENTER);txt(c,"blocked",295,173,9,WHITE,Paint.Align.CENTER);
+            card(c,215,110,GREEN,"Protection Status","APK Guard ON • Link Guard ON\nMessage Scanner ON • Wi-Fi Guard ON");
+            card(c,340,110,CYAN,"Recent Activity","Phishing link blocked\nSuspicious APK scanned\nUnsafe Wi-Fi detected");
+        }
+        void ai(Canvas c){
+            top(c,"AI Security Assistant");rect(c,15,72,345,170,PANEL,18);txt(c,"◉",180,115,40,PURPLE,Paint.Align.CENTER);bold(c,"CyberShield AI",180,142,16,WHITE,Paint.Align.CENTER);txt(c,"Ask about a security alert, link or app.",180,160,9,MUTED,Paint.Align.CENTER);
+            String[] q={"Is this message safe?","Check this link for phishing","Is this APK risky?","Explain this security alert"};
+            for(int i=0;i<q.length;i++)button(c,"q"+i,q[i],25,195+i*58,335,238+i*58,PURPLE);
+        }
+        void nav(Canvas c){
+            rect(c,0,665,360,760,Color.rgb(3,14,12),0);
+            String[][] n={{"home","⌂","Home"},{"threat","!","Threats"},{"reports","▤","Reports"},{"ai","◉","AI Assistant"}};
+            for(int i=0;i<n.length;i++){float x=45+i*90;int ac=(screen.equals(n[i][0])?GREEN:MUTED);txt(c,n[i][1],x,698,20,ac,Paint.Align.CENTER);txt(c,n[i][2],x,720,8,ac,Paint.Align.CENTER);add(n[i][0],x-35,675,x+35,740);}
+        }
+
+        void action(String id){
+            if(id.equals("scan"))screen="scan";
+            else if(id.equals("apk"))screen="apk";
+            else if(id.equals("messages"))screen="messages";
+            else if(id.equals("email"))screen="email";
+            else if(id.equals("link"))screen="link";
+            else if(id.equals("apps"))screen="apps";
+            else if(id.equals("wifi"))screen="wifi";
+            else if(id.equals("calls"))screen="calls";
+            else if(id.equals("settings"))screen="settings";
+            else if(id.equals("reports"))screen="reports";
+            else if(id.equals("ai"))screen="ai";
+            else if(id.equals("threat"))screen="threat";
+            else if(id.equals("files"))info("File Scanner","Select a file/APK for metadata and security analysis.");
+            else if(id.equals("scanapk"))apkGuard();
+            else if(id.equals("continueapk"))info("Warning","Installing an unknown APK can expose your device to malware. Continue only if you trust the source.");
+            else if(id.equals("cancelapk"))info("APK Guard","Installation cancelled.");
+            else if(id.equals("block"))info("Threat blocked","The suspicious message has been marked as blocked in this demo.");
+            else if(id.equals("scanlink"))info("Link Scan","AI analysis complete: suspicious-domain indicators detected.");
+            else if(id.equals("scanmsg"))info("Message Scan","Scan complete: 1 dangerous, 1 suspicious, 5 safe.");
+            else if(id.equals("scanemail"))info("Email Scan","Scan complete: 1 phishing, 1 suspicious, 4 safe.");
+            else if(id.equals("scanapps"))info("App Scan","6 apps checked. 1 high-risk, 1 suspicious, 4 safe.");
+            else if(id.equals("disconnect"))info("Wi-Fi Security","Disconnect request sent. Check your device Wi-Fi settings if needed.");
+            else if(id.equals("blockcall"))info("Call Guard","Caller blocked in this demo. Real call blocking requires supported Android APIs.");
+            else if(id.equals("reportcall"))info("Call Guard","Spam report prepared.");
+            else if(id.equals("allowcall"))info("Call Guard","Caller allowed.");
+            else if(id.equals("back"))screen="home";
+            else if(id.startsWith("q"))info("AI Assistant", "AI response module ready.\n\nFor this prototype, connect a trusted security-analysis backend before treating results as real malware verdicts.");
+            invalidate();
+        }
+
+        @Override public boolean onTouchEvent(MotionEvent e){
+            if(e.getAction()!=MotionEvent.ACTION_UP)return true;
+            float x=e.getX(),y=e.getY();
+            String found=null;
+            for(Map.Entry<String,RectF> z:hit.entrySet())if(z.getValue().contains(x,y)){found=z.getKey();break;}
+            if(found!=null)action(found);
+            return true;
         }
     }
 }
