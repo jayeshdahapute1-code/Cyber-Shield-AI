@@ -279,8 +279,8 @@ public class MainActivity extends Activity {
             bold(c,"READY",140,127,24,GREEN,Paint.Align.LEFT);
             txt(c,"Local security checks are available",140,148,9,MUTED,Paint.Align.LEFT);
             txt(c,networkStatus(),140,167,8,CYAN,Paint.Align.LEFT);
-            button(c,"scan",22,205,175,253,GREEN);
-            button(c,"securitysettings",185,205,338,253,CYAN);
+            button(c,"scan","RUN FULL AUDIT",22,205,175,253,GREEN);
+            button(c,"securitysettings","SECURITY",185,205,338,253,CYAN);
             bold(c,"SECURITY MODULES",18,285,10,MUTED,Paint.Align.LEFT);
             String[][] a={{"apk","⚠","APK Guard","APK metadata + hash"},{"link","⌁","Link Guard","Phishing heuristics"},{"apps","▦","App Audit","Installed app audit"},{"wifi","⌁","Network","Connectivity check"},{"messages","▣","Messages","User-enabled scan"},{"email","✉","Email","Phishing analysis"},{"calls","☎","Call Guard","Screening setup"},{"reports","▤","Reports","Scan history"},{"settings","⚙","Settings","Controls & privacy"}};
             for(int i=0;i<a.length;i++){
@@ -424,6 +424,9 @@ public class MainActivity extends Activity {
         void action(String id){
             if(id.equals("home"))screen="home";
             else if(id.equals("scan"))screen="scan";
+            else if(id.equals("startscan"))runSecurityScan();
+            else if(id.equals("securitysettings"))securitySettings();
+            else if(id.equals("about"))info("About CyberShield AI","Version 1.2.0\nPrivacy-first mobile security toolkit.\n\nLocal checks do not guarantee malware detection.");
             else if(id.equals("apk"))screen="apk";
             else if(id.equals("messages"))screen="messages";
             else if(id.equals("email"))screen="email";
