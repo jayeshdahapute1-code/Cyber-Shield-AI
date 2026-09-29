@@ -290,7 +290,7 @@ public class MainActivity extends Activity {
             txt(c,"Unsafe Links",288,201,6,MUTED,Paint.Align.CENTER);
 
             bold(c,"Quick Actions",18,237,12,WHITE,Paint.Align.LEFT);
-            String[][] a={{"apps","▣","App Security",CYAN},{"link","⌁","Link Scanner",PURPLE},{"messages","▤","Message Guard",GREEN},{"email","✉","Email Scanner",YELLOW},{"calls","☎","Call Guard",RED},{"wifi","⌁","Wi-Fi Security",CYAN}};
+            Object[][] a={{"apps","▣","App Security",CYAN},{"link","⌁","Link Scanner",PURPLE},{"messages","▤","Message Guard",GREEN},{"email","✉","Email Scanner",YELLOW},{"calls","☎","Call Guard",RED},{"wifi","⌁","Wi-Fi Security",CYAN}};
             for(int i=0;i<a.length;i++){
                 int col=i%2,row=i/2; float l=15+col*170,t=250+row*59;
                 int ac=(Integer)a[i][3];
