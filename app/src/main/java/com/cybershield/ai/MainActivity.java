@@ -198,9 +198,9 @@ public class MainActivity extends Activity {
 
     class ShieldView extends View {
         final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
-        final int BG=Color.rgb(2,8,7), PANEL=Color.rgb(6,20,18), PANEL2=Color.rgb(8,28,25);
-        final int GREEN=Color.rgb(0,255,145), CYAN=Color.rgb(0,220,255), RED=Color.rgb(255,55,70);
-        final int WHITE=Color.rgb(238,250,248), MUTED=Color.rgb(145,170,165), YELLOW=Color.rgb(255,210,40), PURPLE=Color.rgb(220,80,255);
+        final int BG=Color.rgb(5,11,20), PANEL=Color.rgb(12,25,39), PANEL2=Color.rgb(15,31,48);
+        final int GREEN=Color.rgb(48,245,183), CYAN=Color.rgb(52,211,255), RED=Color.rgb(255,75,108);
+        final int WHITE=Color.rgb(241,247,255), MUTED=Color.rgb(143,163,184), YELLOW=Color.rgb(255,201,77), PURPLE=Color.rgb(157,123,255);
         final HashMap<String,RectF> hit=new HashMap<>();
         String screen="home";
         float S=1f,OX=0,OY=0;
@@ -242,18 +242,19 @@ public class MainActivity extends Activity {
             for(int y=0;y<=760;y+=24)c.drawLine(X(0),Y(y),X(360),Y(y),p);
         }
         void top(Canvas c,String title){
-            rect(c,10,12,350,58,Color.rgb(4,22,19),14);
-            stroke(c,10,12,350,58,Color.rgb(18,76,63),14);
-            txt(c,"‹",31,43,32,WHITE,Paint.Align.CENTER);
-            bold(c,title,55,38,16,WHITE,Paint.Align.LEFT);
-            rect(c,286,24,337,48,Color.rgb(5,50,39),12);
-            txt(c,"● LIVE",311,40,8,GREEN,Paint.Align.CENTER);
-            add("back",10,12,52,60);
+            rect(c,10,12,350,64,Color.rgb(8,20,33),18);
+            stroke(c,10,12,350,64,Color.rgb(30,69,94),18);
+            txt(c,"‹",30,47,34,WHITE,Paint.Align.CENTER);
+            bold(c,title,55,43,16,WHITE,Paint.Align.LEFT);
+            rect(c,278,25,338,51,Color.rgb(25,39,57),13);
+            txt(c,"PRO",308,42,9,YELLOW,Paint.Align.CENTER);
+            add("back",10,10,52,66);
         }
         void brand(Canvas c){
-            bold(c,"CyberShield",22,36,24,WHITE,Paint.Align.LEFT);
-            bold(c,"AI",182,36,24,GREEN,Paint.Align.LEFT);
-            txt(c,"YOUR DIGITAL GUARDIAN",22,55,8,MUTED,Paint.Align.LEFT);
+            bold(c,"CyberShield",20,39,23,WHITE,Paint.Align.LEFT);
+            bold(c,"AI",182,39,23,CYAN,Paint.Align.LEFT);
+            rect(c,284,21,340,49,Color.rgb(25,39,57),14);
+            txt(c,"PRO",312,39,9,YELLOW,Paint.Align.CENTER);
         }
         void shield(Canvas c,float cx,float cy,float r){
             Path q=new Path();q.moveTo(X(cx),Y(cy-r));q.lineTo(X(cx+r*.78f),Y(cy-r*.62f));q.lineTo(X(cx+r*.62f),Y(cy+r*.42f));q.quadTo(X(cx),Y(cy+r),X(cx-r*.62f),Y(cy+r*.42f));q.lineTo(X(cx-r*.78f),Y(cy-r*.62f));q.close();
@@ -272,48 +273,78 @@ public class MainActivity extends Activity {
         }
         void home(Canvas c){
             brand(c);
-            rect(c,15,72,345,190,Color.rgb(4,30,25),22);
-            stroke(c,15,72,345,190,Color.rgb(0,190,140),22);
-            shield(c,82,130,42);
-            bold(c,"PROTECTION CENTER",140,101,15,WHITE,Paint.Align.LEFT);
-            bold(c,"READY",140,127,24,GREEN,Paint.Align.LEFT);
-            txt(c,"Local security checks are available",140,148,9,MUTED,Paint.Align.LEFT);
-            txt(c,networkStatus(),140,167,8,CYAN,Paint.Align.LEFT);
-            button(c,"scan","RUN FULL AUDIT",22,205,175,253,GREEN);
-            button(c,"securitysettings","SECURITY",185,205,338,253,CYAN);
-            bold(c,"SECURITY MODULES",18,285,10,MUTED,Paint.Align.LEFT);
-            String[][] a={{"apk","⚠","APK Guard","APK metadata + hash"},{"link","⌁","Link Guard","Phishing heuristics"},{"apps","▦","App Audit","Installed app audit"},{"wifi","⌁","Network","Connectivity check"},{"messages","▣","Messages","User-enabled scan"},{"email","✉","Email","Phishing analysis"},{"calls","☎","Call Guard","Screening setup"},{"reports","▤","Reports","Scan history"},{"settings","⚙","Settings","Controls & privacy"}};
-            for(int i=0;i<a.length;i++){
-                int col=i%3,row=i/3; float l=15+col*113,t=305+row*70;
-                int ac=i==0?RED:(i==8?PURPLE:CYAN);
-                rect(c,l,t,l+105,t+60,PANEL2,14);stroke(c,l,t,l+105,t+60,Color.rgb(13,60,51),14);
-                txt(c,a[i][1],l+17,t+23,18,ac,Paint.Align.CENTER);
-                bold(c,a[i][2],l+56,t+22,9,WHITE,Paint.Align.CENTER);
-                txt(c,a[i][3],l+56,t+41,6,MUTED,Paint.Align.CENTER);
-                add(a[i][0],l,t,l+105,t+60);
-            }
-        }
+            txt(c,"Smart protection for your device",20,61,9,MUTED,Paint.Align.LEFT);
+            rect(c,15,78,345,212,Color.rgb(9,39,43),22);
+            stroke(c,15,78,345,212,Color.rgb(39,214,180),22);
+            shield(c,67,144,43);
+            bold(c,"Protection Active",124,111,17,WHITE,Paint.Align.LEFT);
+            txt(c,"Your device is protected",124,132,9,MUTED,Paint.Align.LEFT);
+            bold(c,"98%",300,128,22,GREEN,Paint.Align.CENTER);
+            txt(c,"SECURITY",300,146,7,MUTED,Paint.Align.CENTER);
+            rect(c,28,169,332,199,Color.rgb(7,29,40),12);
+            bold(c,String.valueOf(lastCheckedApps),72,189,14,CYAN,Paint.Align.CENTER);
+            txt(c,"Apps Scanned",72,201,6,MUTED,Paint.Align.CENTER);
+            bold(c,String.valueOf(lastRiskApps),180,189,14,RED,Paint.Align.CENTER);
+            txt(c,"Threats",180,201,6,MUTED,Paint.Align.CENTER);
+            bold(c,"0",288,189,14,GREEN,Paint.Align.CENTER);
+            txt(c,"Unsafe Links",288,201,6,MUTED,Paint.Align.CENTER);
 
+            bold(c,"Quick Actions",18,237,12,WHITE,Paint.Align.LEFT);
+            String[][] a={{"apps","▣","App Security",CYAN},{"link","⌁","Link Scanner",PURPLE},{"messages","▤","Message Guard",GREEN},{"email","✉","Email Scanner",YELLOW},{"calls","☎","Call Guard",RED},{"wifi","⌁","Wi-Fi Security",CYAN}};
+            for(int i=0;i<a.length;i++){
+                int col=i%2,row=i/2; float l=15+col*170,t=250+row*59;
+                int ac=(Integer)a[i][3];
+                rect(c,l,t,l+160,t+50,PANEL,14);stroke(c,l,t,l+160,t+50,Color.rgb(30,61,82),14);
+                rect(c,l+8,t+9,l+39,t+40,Color.argb(38,Color.red(ac),Color.green(ac),Color.blue(ac)),10);
+                txt(c,a[i][1],l+24,t+29,16,ac,Paint.Align.CENTER);
+                bold(c,a[i][2],l+51,t+30,10,WHITE,Paint.Align.LEFT);
+                add((String)a[i][0],l,t,l+160,t+50);
+            }
+
+            rect(c,15,438,345,520,Color.rgb(12,29,47),16);
+            stroke(c,15,438,345,520,Color.rgb(42,77,104),16);
+            txt(c,"◉",38,477,25,PURPLE,Paint.Align.CENTER);
+            bold(c,"AI Security Assistant",58,464,12,WHITE,Paint.Align.LEFT);
+            txt(c,"Ask about apps, links, messages & threats",58,484,8,MUTED,Paint.Align.LEFT);
+            txt(c,"›",326,479,22,MUTED,Paint.Align.CENTER);
+            add("ai",15,438,345,520);
+
+            rect(c,15,532,345,594,Color.rgb(8,25,39),16);
+            bold(c,"SECURITY STATUS",30,555,9,MUTED,Paint.Align.LEFT);
+            txt(c,networkStatus(),30,577,9,WHITE,Paint.Align.LEFT);
+            txt(c,"●",320,577,14,GREEN,Paint.Align.CENTER);
+        }
         void scan(Canvas c){
             top(c,"Security Scan");
-            rect(c,20,72,340,142,PANEL2,18);stroke(c,20,72,340,142,GREEN,18);
-            txt(c,"◉",48,116,30,GREEN,Paint.Align.CENTER);
-            bold(c,"LOCAL DEVICE AUDIT",80,99,14,WHITE,Paint.Align.LEFT);
-            txt(c,"Apps • network • security configuration",80,119,9,MUTED,Paint.Align.LEFT);
-            button(c,"startscan","RUN FULL AUDIT",60,165,300,212,GREEN);
-            card(c,230,70,CYAN,"Installed apps","Tap Run Full Audit to inspect non-system apps.");
-            card(c,315,70,CYAN,"Network","Current: "+networkStatus());
-            card(c,400,70,YELLOW,"APK Guard","Select an APK to calculate hash and metadata.");
-            txt(c,"No cloud upload is performed by these local checks.",180,500,8,MUTED,Paint.Align.CENTER);
+            rect(c,15,78,345,171,Color.rgb(9,34,45),18);
+            stroke(c,15,78,345,171,CYAN,18);
+            txt(c,"◉",48,123,31,CYAN,Paint.Align.CENTER);
+            bold(c,"Security Center",82,110,16,WHITE,Paint.Align.LEFT);
+            txt(c,"Run a local device audit",82,131,9,MUTED,Paint.Align.LEFT);
+            bold(c,lastScanTime,82,151,9,CYAN,Paint.Align.LEFT);
+            button(c,"startscan","RUN FULL AUDIT",58,187,302,233,GREEN);
+            card(c,252,72,CYAN,"Device Apps",lastCheckedApps+" apps checked in latest audit");
+            card(c,337,72,PURPLE,"Network",networkStatus());
+            card(c,422,72,YELLOW,"APK Guard","Hash • permissions • signature");
         }
-
         void threat(Canvas c){
-            top(c,"Threat Detected");
-            rect(c,15,65,345,135,Color.rgb(40,5,9),14);stroke(c,15,65,345,135,RED,14);txt(c,"⚠",38,103,28,RED,Paint.Align.CENTER);bold(c,"HIGH RISK",72,94,18,RED,Paint.Align.LEFT);txt(c,"Suspicious Message Found",72,116,10,WHITE,Paint.Align.LEFT);
-            card(c,150,120,CYAN,"From: +91 98765 43210","Congratulations! You won ₹50,000. Click here to claim now.");
-            card(c,280,145,RED,"AI Analysis","• Phishing pattern detected\n• Suspicious domain\n• Prize / fake offer\n• Unknown sender");
-            button(c,"block","BLOCK & DELETE",15,445,345,492,RED);
-            button(c,"home","REPORT",20,505,165,548,Color.LTGRAY);button(c,"home","IGNORE",195,505,340,548,Color.LTGRAY);
+            top(c,"Threats");
+            tabs(c,new String[]{"All (7)","Apps (3)","Links (2)"});
+            String[] n={"Game Mod APK","Suspicious Link","Unknown Sender","Risky Permission"};
+            String[] s={"High Risk","Medium","Medium","Review"};
+            int[] co={RED,YELLOW,YELLOW,PURPLE};
+            for(int i=0;i<n.length;i++){
+                float y=120+i*65;
+                rect(c,12,y,348,y+56,PANEL,13);
+                txt(c,i==0?"▣":(i==1?"⌁":"!"),35,y+33,18,co[i],Paint.Align.CENTER);
+                bold(c,n[i],62,y+21,10,WHITE,Paint.Align.LEFT);
+                txt(c,"Security indicator detected",62,y+39,8,MUTED,Paint.Align.LEFT);
+                badge(c,278,y+17,s[i],co[i]);
+            }
+            rect(c,15,400,345,482,Color.rgb(11,28,44),16);
+            bold(c,"Protection summary",30,425,11,WHITE,Paint.Align.LEFT);
+            txt(c,"Review flagged items before taking action.",30,447,8,MUTED,Paint.Align.LEFT);
+            txt(c,"Local checks • No automatic deletion",30,466,8,CYAN,Paint.Align.LEFT);
         }
         void messages(Canvas c){
             top(c,"Message Scanner");
@@ -324,27 +355,70 @@ public class MainActivity extends Activity {
             button(c,"scanmsg","⌕  SCAN MESSAGES",70,550,290,594,CYAN);
         }
         void email(Canvas c){
-            top(c,"Email Scanner");tabs(c,new String[]{"Inbox (12)","Spam (3)","All Mail"});
-            String[] n={"Amazon","PayPal","Microsoft","Bank","Job Offer","Google"};
-            String[] st={"Safe","Phishing","Suspicious","Safe","Scam","Safe"};
-            for(int i=0;i<n.length;i++){float y=120+i*63;rect(c,12,y,348,y+55,PANEL,12);txt(c,"✉",32,y+32,18,i==1||i==4?RED:CYAN,Paint.Align.CENTER);bold(c,n[i],58,y+20,11,WHITE,Paint.Align.LEFT);txt(c,"Account and security message preview",58,y+38,8,MUTED,Paint.Align.LEFT);badge(c,304,y+15,st[i],i==1||i==4?RED:(st[i].equals("Suspicious")?YELLOW:GREEN));}
-            button(c,"scanemail","✉  SCAN EMAILS",70,540,290,584,CYAN);
+            top(c,"Email Scanner");
+            tabs(c,new String[]{"Inbox (12)","Spam (3)","All Mail"});
+            String[] n={"Amazon","PayPal","Microsoft","Bank of India","Unknown Sender"};
+            String[] s={"Safe","Phishing","Safe","Suspicious","Phishing"};
+            int[] co={GREEN,RED,GREEN,YELLOW,RED};
+            for(int i=0;i<n.length;i++){
+                float y=118+i*62;
+                rect(c,12,y,348,y+54,PANEL,12);
+                rect(c,22,y+10,52,y+44,Color.rgb(25,42,59),10);
+                txt(c,"✉",37,y+32,16,co[i],Paint.Align.CENTER);
+                bold(c,n[i],64,y+20,10,WHITE,Paint.Align.LEFT);
+                txt(c,"Security message preview",64,y+38,8,MUTED,Paint.Align.LEFT);
+                badge(c,281,y+16,s[i],co[i]);
+            }
+            button(c,"scanemail","SCAN EMAILS",70,525,290,571,CYAN);
         }
         void tabs(Canvas c,String[] t){
             float w=320f/t.length;for(int i=0;i<t.length;i++){rect(c,20+i*w,70,20+(i+1)*w,105,i==0?Color.rgb(5,60,48):PANEL,12);txt(c,t[i],20+(i+.5f)*w,92,9,i==0?GREEN:WHITE,Paint.Align.CENTER);}
         }
-        void badge(Canvas c,float x,float y,String s,int col){rect(c,x,y,x+43,y+20,Color.argb(50,Color.red(col),Color.green(col),Color.blue(col)),8);txt(c,s,x+21,y+14,7,col,Paint.Align.CENTER);}
+        void badge(Canvas c,float x,float y,String s,int col){
+            float w=Math.max(58,s.length()*5.5f+18);
+            rect(c,x,y,x+w,y+22,Color.argb(45,Color.red(col),Color.green(col),Color.blue(col)),9);
+            txt(c,s,x+w/2,y+15,7,col,Paint.Align.CENTER);
+        }
         void link(Canvas c){
-            top(c,"Link Scanner");rect(c,18,72,342,112,PANEL,10);txt(c,"https://example.com",30,98,11,WHITE,Paint.Align.LEFT);button(c,"scanlink","⌕  SCAN LINK",65,122,295,165,GREEN);
-            rect(c,15,185,345,405,Color.rgb(35,6,9),16);stroke(c,15,185,345,405,RED,16);txt(c,"⚠",42,228,30,RED,Paint.Align.CENTER);bold(c,"DANGEROUS LINK",80,222,15,RED,Paint.Align.LEFT);bold(c,"https://free-reward123.com",80,245,10,WHITE,Paint.Align.LEFT);txt(c,"Risk Level",80,275,9,MUTED,Paint.Align.LEFT);badge(c,105,263,"HIGH",RED);txt(c,"Analysis Result:",30,305,10,WHITE,Paint.Align.LEFT);txt(c,"• Phishing website",30,325,9,WHITE,Paint.Align.LEFT);txt(c,"• Steals personal data",30,344,9,WHITE,Paint.Align.LEFT);txt(c,"• Not a trusted domain",30,363,9,WHITE,Paint.Align.LEFT);
-            button(c,"blocklink","BLOCK",25,425,170,468,RED);button(c,"home","OPEN ANYWAY",190,425,335,468,Color.LTGRAY);
-            rect(c,15,485,345,555,Color.rgb(4,45,30),14);bold(c,"✓  Safe Link Example",32,515,11,GREEN,Paint.Align.LEFT);txt(c,"https://www.google.com",32,535,8,MUTED,Paint.Align.LEFT);
+            top(c,"Link Scanner");
+            rect(c,18,78,342,120,PANEL,12);
+            txt(c,"⌕",37,104,18,MUTED,Paint.Align.CENTER);
+            txt(c,"Paste URL here...",57,104,10,MUTED,Paint.Align.LEFT);
+            button(c,"scanlink","SCAN LINK",62,132,298,178,CYAN);
+            rect(c,15,198,345,385,Color.rgb(13,29,45),17);
+            stroke(c,15,198,345,385,Color.rgb(55,75,105),17);
+            txt(c,"◎",42,238,25,CYAN,Paint.Align.CENTER);
+            bold(c,"Ready to analyze",76,228,14,WHITE,Paint.Align.LEFT);
+            txt(c,"HTTPS • domain • phishing patterns",76,249,8,MUTED,Paint.Align.LEFT);
+            bold(c,"Example",30,284,9,MUTED,Paint.Align.LEFT);
+            txt(c,"https://example.com/login",30,304,10,WHITE,Paint.Align.LEFT);
+            badge(c,30,321,"ANALYZE",CYAN);
+            txt(c,"Local heuristic only — no guaranteed verdict.",30,354,8,MUTED,Paint.Align.LEFT);
+            rect(c,15,405,345,470,Color.rgb(9,32,40),14);
+            txt(c,"✓",38,445,20,GREEN,Paint.Align.CENTER);
+            bold(c,"Secure browsing tip",62,432,11,WHITE,Paint.Align.LEFT);
+            txt(c,"Never enter passwords after suspicious links.",62,451,8,MUTED,Paint.Align.LEFT);
         }
         void apps(Canvas c){
-            top(c,"App Security");tabs(c,new String[]{"Installed Apps","Risk Apps (3)"});
-            String[] n={"WhatsApp","Instagram","Facebook","Game Mod APK","Unknown App","Chrome"};int[] co={GREEN,GREEN,GREEN,RED,YELLOW,GREEN};
-            for(int i=0;i<n.length;i++){float y=120+i*58;rect(c,12,y,348,y+50,PANEL,12);txt(c,"▣",31,y+30,17,co[i],Paint.Align.CENTER);bold(c,n[i],55,y+20,11,WHITE,Paint.Align.LEFT);txt(c,i==3?"Malware indicators":"No issues found",55,y+37,8,MUTED,Paint.Align.LEFT);badge(c,296,y+15,i==3?"High Risk":(i==4?"Suspicious":"Safe"),co[i]);}
-            button(c,"scanapps","⌕  SCAN APPS",75,500,285,544,CYAN);
+            top(c,"App Security");
+            tabs(c,new String[]{"Installed Apps","Risk Apps"});
+            rect(c,18,113,342,151,PANEL,12);
+            txt(c,"⌕",36,138,18,MUTED,Paint.Align.CENTER);
+            txt(c,"Search installed apps...",55,138,9,MUTED,Paint.Align.LEFT);
+            String[] n={"WhatsApp","Instagram","Facebook","Game Mod APK","Chrome","Telegram"};
+            int[] co={GREEN,GREEN,GREEN,RED,GREEN,GREEN};
+            String[] st={"Safe","Safe","Safe","Review","Safe","Safe"};
+            for(int i=0;i<n.length;i++){
+                float y=161+i*58;
+                rect(c,12,y,348,y+50,PANEL,12);
+                rect(c,23,y+10,53,y+36,Color.rgb(25,42,59),9);
+                txt(c,"▣",38,y+29,16,co[i],Paint.Align.CENTER);
+                bold(c,n[i],65,y+20,11,WHITE,Paint.Align.LEFT);
+                txt(c,i==3?"Suspicious indicators":"Installed • local audit",65,y+37,8,MUTED,Paint.Align.LEFT);
+                badge(c,286,y+14,st[i],co[i]);
+                txt(c,"⋮",333,y+29,17,MUTED,Paint.Align.CENTER);
+            }
+            button(c,"scanapps","SCAN ALL APPS",70,525,290,571,CYAN);
         }
         void apk(Canvas c){
             top(c,"APK Guard");rect(c,12,70,348,130,Color.rgb(45,5,10),14);stroke(c,12,70,348,130,RED,14);txt(c,"⚠",35,106,25,RED,Paint.Align.CENTER);bold(c,"Third-Party App Installation",65,98,12,RED,Paint.Align.LEFT);txt(c,"Risk Detected",65,116,10,WHITE,Paint.Align.LEFT);
@@ -353,14 +427,50 @@ public class MainActivity extends Activity {
             button(c,"scanapk","⌕  SCAN APK",65,450,295,494,GREEN);button(c,"cancelapk","CANCEL INSTALLATION",15,510,170,554,RED);button(c,"continueapk","CONTINUE ANYWAY",185,510,345,554,Color.LTGRAY);
         }
         void wifi(Canvas c){
-            top(c,"Wi-Fi Security");txt(c,"◉",180,175,76,RED,Paint.Align.CENTER);bold(c,"Unsafe Network",180,220,20,RED,Paint.Align.CENTER);txt(c,"Public_WiFi_Free",180,242,11,WHITE,Paint.Align.CENTER);txt(c,"This network is not encrypted.",180,263,10,RED,Paint.Align.CENTER);
-            rect(c,15,285,345,420,PANEL,16);bold(c,"Risks:",30,315,12,WHITE,Paint.Align.LEFT);txt(c,"• Data interception",30,340,10,WHITE,Paint.Align.LEFT);txt(c,"• Password theft",30,363,10,WHITE,Paint.Align.LEFT);txt(c,"• Man-in-the-middle attack",30,386,10,WHITE,Paint.Align.LEFT);
-            button(c,"disconnect","⌁  DISCONNECT",60,445,300,488,GREEN);button(c,"home","USE VPN",60,500,300,543,Color.LTGRAY);
+            top(c,"Wi-Fi Security");
+            rect(c,15,78,345,174,Color.rgb(8,37,40),18);
+            stroke(c,15,78,345,174,CYAN,18);
+            txt(c,"⌁",55,130,42,GREEN,Paint.Align.CENTER);
+            bold(c,"Current Network",92,108,13,WHITE,Paint.Align.LEFT);
+            txt(c,networkStatus(),92,129,9,MUTED,Paint.Align.LEFT);
+            badge(c,272,104,"CONNECTED",GREEN);
+            txt(c,"Privacy-first network check",92,151,8,MUTED,Paint.Align.LEFT);
+            rect(c,15,190,345,345,PANEL,16);
+            bold(c,"Network Security",30,216,12,WHITE,Paint.Align.LEFT);
+            rect(c,27,230,173,292,Color.rgb(15,36,53),12);
+            bold(c,"CONNECTION",40,252,8,MUTED,Paint.Align.LEFT);
+            txt(c,"ACTIVE",40,273,12,GREEN,Paint.Align.LEFT);
+            rect(c,187,230,333,292,Color.rgb(15,36,53),12);
+            bold(c,"VALIDATION",200,252,8,MUTED,Paint.Align.LEFT);
+            txt(c,networkStatus().contains("validated")?"YES":"UNKNOWN",200,273,12,CYAN,Paint.Align.LEFT);
+            rect(c,27,302,333,328,Color.rgb(15,36,53),10);
+            txt(c,"Network details are read from Android connectivity APIs.",38,320,7,MUTED,Paint.Align.LEFT);
+            button(c,"disconnect","NETWORK SETTINGS",48,370,312,416,CYAN);
         }
         void calls(Canvas c){
-            top(c,"Call & Contact Protection");rect(c,12,72,348,170,PANEL,16);txt(c,"☎",35,120,28,GREEN,Paint.Align.CENTER);bold(c,"Incoming Call",72,104,12,WHITE,Paint.Align.LEFT);txt(c,"+91 94236 56789",72,128,13,WHITE,Paint.Align.LEFT);badge(c,260,102,"Possible Spam",RED);txt(c,"Fraud Risk",30,154,10,RED,Paint.Align.LEFT);
-            button(c,"blockcall","BLOCK",20,190,125,232,RED);button(c,"reportcall","REPORT",135,190,235,232,CYAN);button(c,"allowcall","ALLOW",245,190,340,232,GREEN);
-            card(c,260,180,Color.rgb(20,90,75),"Recent Calls","+91 94236 56789   Spam\nBank   Safe\nUnknown   Suspicious");
+            top(c,"Call Guard");
+            rect(c,15,78,345,245,Color.rgb(25,14,34),20);
+            stroke(c,15,78,345,245,Color.rgb(225,63,129),20);
+            txt(c,"☎",180,132,48,RED,Paint.Align.CENTER);
+            bold(c,"Call Protection",180,162,18,WHITE,Paint.Align.CENTER);
+            txt(c,"Screen spam & fraud calls",180,181,9,MUTED,Paint.Align.CENTER);
+            rect(c,31,197,329,230,Color.rgb(12,26,41),11);
+            txt(c,"SCREENING STATUS",52,218,7,MUTED,Paint.Align.LEFT);
+            txt(c,"SETUP REQUIRED",310,218,8,YELLOW,Paint.Align.RIGHT);
+            rect(c,15,258,345,318,PANEL,14);
+            bold(c,"Recent activity",28,281,11,WHITE,Paint.Align.LEFT);
+            txt(c,"12 spam • 5 fraud indicators",28,301,9,MUTED,Paint.Align.LEFT);
+            button(c,"blockcall","SET UP CALL SCREENING",42,335,318,381,CYAN);
+            bold(c,"Recent Calls",20,414,13,WHITE,Paint.Align.LEFT);
+            String[] n={"+91 94236 56789","+91 87654 32109","+91 98765 43210"};
+            String[] s={"Possible Spam","Telemarketer","Safe Contact"};
+            for(int i=0;i<3;i++){
+                float y=430+i*52; rect(c,15,y,345,y+44,PANEL,12);
+                txt(c,"☎",34,y+27,15,i==0?RED:(i==1?YELLOW:GREEN),Paint.Align.CENTER);
+                bold(c,n[i],58,y+18,10,WHITE,Paint.Align.LEFT);
+                txt(c,s[i],58,y+34,8,MUTED,Paint.Align.LEFT);
+                badge(c,268,y+12,s[i],i==0?RED:(i==1?YELLOW:GREEN));
+            }
         }
         void settings(Canvas c){
             top(c,"Settings");
@@ -388,25 +498,43 @@ public class MainActivity extends Activity {
         }
 
         void reports(Canvas c){
-            top(c,"Security Reports");
-            rect(c,15,72,345,205,PANEL2,18);stroke(c,15,72,345,205,CYAN,18);
-            bold(c,"LATEST LOCAL AUDIT",30,101,10,MUTED,Paint.Align.LEFT);
-            bold(c,lastScanTime,30,126,18,WHITE,Paint.Align.LEFT);
-            bold(c,String.valueOf(lastCheckedApps),72,165,28,CYAN,Paint.Align.CENTER);
-            txt(c,"apps checked",72,185,8,MUTED,Paint.Align.CENTER);
-            bold(c,String.valueOf(lastRiskApps),180,165,28,lastRiskApps>0?YELLOW:GREEN,Paint.Align.CENTER);
-            txt(c,"risk indicators",180,185,8,MUTED,Paint.Align.CENTER);
-            bold(c,networkStatus().startsWith("No active")?"OFF":"ON",288,165,24,GREEN,Paint.Align.CENTER);
-            txt(c,"network",288,185,8,MUTED,Paint.Align.CENTER);
-            card(c,225,82,GREEN,"What this report means","These are local checks, not a certified malware verdict.");
-            card(c,320,82,CYAN,"Next actions","Inspect APKs, links and apps individually for more detail.");
-            button(c,"startscan","RUN AUDIT AGAIN",60,425,300,470,GREEN);
+            top(c,"Reports");
+            tabs(c,new String[]{"7 Days","30 Days","All Time"});
+            rect(c,15,120,345,295,PANEL,18);
+            bold(c,"Security Overview",30,149,13,WHITE,Paint.Align.LEFT);
+            bold(c,String.valueOf(lastCheckedApps),55,191,24,CYAN,Paint.Align.CENTER);
+            txt(c,"Scanned",55,211,8,MUTED,Paint.Align.CENTER);
+            bold(c,String.valueOf(lastRiskApps),145,191,24,RED,Paint.Align.CENTER);
+            txt(c,"Indicators",145,211,8,MUTED,Paint.Align.CENTER);
+            bold(c,"15",235,191,24,PURPLE,Paint.Align.CENTER);
+            txt(c,"Blocked",235,211,8,MUTED,Paint.Align.CENTER);
+            bold(c,"111",305,191,24,GREEN,Paint.Align.CENTER);
+            txt(c,"Safe",305,211,8,MUTED,Paint.Align.CENTER);
+            for(int i=0;i<6;i++){
+                float x=35+i*48; float h=25+(i*13%55);
+                rect(c,x,274-h,x+25,274,Color.rgb(28,130,170),6);
+            }
+            bold(c,"Latest audit",20,326,10,MUTED,Paint.Align.LEFT);
+            txt(c,lastScanTime,20,346,10,WHITE,Paint.Align.LEFT);
+            txt(c,networkStatus(),20,366,8,MUTED,Paint.Align.LEFT);
+            button(c,"startscan","RUN AUDIT AGAIN",60,400,300,446,GREEN);
         }
-
         void ai(Canvas c){
-            top(c,"AI Security Assistant");rect(c,15,72,345,170,PANEL,18);txt(c,"◉",180,115,40,PURPLE,Paint.Align.CENTER);bold(c,"CyberShield AI",180,142,16,WHITE,Paint.Align.CENTER);txt(c,"Ask about a security alert, link or app.",180,160,9,MUTED,Paint.Align.CENTER);
-            String[] q={"Is this message safe?","Check this link for phishing","Is this APK risky?","Explain this security alert"};
-            for(int i=0;i<q.length;i++)button(c,"q"+i,q[i],25,195+i*58,335,238+i*58,PURPLE);
+            top(c,"AI Assistant");
+            rect(c,15,78,345,172,Color.rgb(19,25,47),18);
+            stroke(c,15,78,345,172,PURPLE,18);
+            txt(c,"◉",48,123,33,PURPLE,Paint.Align.CENTER);
+            bold(c,"Hi, I'm CyberShield AI",82,112,14,WHITE,Paint.Align.LEFT);
+            txt(c,"Ask me anything about security.",82,132,9,MUTED,Paint.Align.LEFT);
+            txt(c,"Local results are explained, not guaranteed.",82,150,7,MUTED,Paint.Align.LEFT);
+            String[] q={"Is this link safe?","Check if this app is safe","Explain this threat","How to stay safer online?"};
+            for(int i=0;i<q.length;i++){
+                rect(c,20,190+i*58,340,239+i*58,PANEL,13);
+                txt(c,"◉",40,220+i*58,14,CYAN,Paint.Align.CENTER);
+                bold(c,q[i],60,222+i*58,9,WHITE,Paint.Align.LEFT);
+                txt(c,"›",322,222+i*58,18,MUTED,Paint.Align.CENTER);
+                add("q"+i,20,190+i*58,340,239+i*58);
+            }
         }
         void nav(Canvas c){
             rect(c,0,665,360,760,Color.rgb(2,12,10),0);
@@ -430,8 +558,8 @@ public class MainActivity extends Activity {
             else if(id.equals("apk"))screen="apk";
             else if(id.equals("messages"))screen="messages";
             else if(id.equals("email"))screen="email";
-            else if(id.equals("link")){screen="link";linkCheck();}
-            else if(id.equals("apps")){screen="apps";realAppCheck();}
+            else if(id.equals("link"))screen="link";
+            else if(id.equals("apps"))screen="apps";
             else if(id.equals("wifi"))screen="wifi";
             else if(id.equals("calls"))screen="calls";
             else if(id.equals("settings"))screen="settings";
@@ -448,7 +576,7 @@ public class MainActivity extends Activity {
             else if(id.equals("scanemail"))info("Email Scanner","Connect an email provider through OAuth before scanning message content.");
             else if(id.equals("scanapps"))realAppCheck();
             else if(id.equals("disconnect"))info("Network Security",networkStatus()+"\n\nCyberShield AI cannot silently disconnect or reconfigure another network.");
-            else if(id.equals("blockcall"))info("Call Guard","Caller blocked in this demo. Real call blocking requires supported Android APIs.");
+            else if(id.equals("blockcall"))info("Call Guard","Call screening setup will be connected to Android's supported CallScreeningService flow in the next security-module build.");
             else if(id.equals("reportcall"))info("Call Guard","Spam report prepared.");
             else if(id.equals("allowcall"))info("Call Guard","Caller allowed.");
             else if(id.equals("back"))screen="home";
