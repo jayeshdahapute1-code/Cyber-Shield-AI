@@ -30,6 +30,11 @@ public class MainActivity extends Activity {
         if(requestCode==42 && resultCode==RESULT_OK && data!=null && data.getData()!=null) scanSelectedApk(data.getData());
     }
 
+    @Override public void onBackPressed(){
+        if(!view.screen.equals("home")){ view.screen="home"; view.invalidate(); }
+        else super.onBackPressed();
+    }
+
     void info(String title,String msg){
         new AlertDialog.Builder(this).setTitle(title).setMessage(msg)
         .setPositiveButton("OK",null).show();
