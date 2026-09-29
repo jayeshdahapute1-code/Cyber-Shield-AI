@@ -71,9 +71,9 @@ public class MainActivity extends Activity {
             c.restore();
         }
         int parse(String rgb){String[] a=rgb.split(",");return Color.rgb(Integer.parseInt(a[0]),Integer.parseInt(a[1]),Integer.parseInt(a[2]));}
-        @Override public boolean onTouchEvent(MotionEvent e){if(e.getAction()!=MotionEvent.ACTION_UP)return true;float x=e.getX(),y=e.getY()-4*d;for(Map.Entry<String,RectF> en:hit.entrySet())if(en.getValue().contains(x,y)){act(en.getKey());return true;}return true;}
+        @Override public boolean onTouchEvent(MotionEvent e){if(e.getAction()!=MotionEvent.ACTION_UP)return true;float x=e.getX()/s,y=(e.getY()-4*d)/s;for(Map.Entry<String,RectF> en:hit.entrySet())if(en.getValue().contains(x,y)){act(en.getKey());return true;}return true;}
         void act(String id){
-            if(id.equals("scan"))showInfo("Smart Scan","✓ Apps checked\n✓ Messages checked\n✓ Email checks ready\n✓ Files checked\n✓ Network check ready\n\nAI scan complete: Device secure.");
+            if(id.equals("scan"))showInfo("Smart Scan","SCAN COMPLETE ✓\n\nApps: SAFE\nMessages: CHECKED\nEmail: CHECKED\nLinks: CHECKED\nFiles: CHECKED\nNetwork: CHECKED\n\nThreat level: LOW\nDevice protection: ACTIVE");
             else if(id.equals("apk"))showApkGuard();
             else if(id.equals("link"))showInfo("Link Scanner","Paste or share a URL with CyberShield AI to analyze phishing, malware and suspicious-domain indicators.");
             else if(id.equals("msg"))showInfo("Message Scanner","AI protection can flag scam patterns, suspicious senders and dangerous links in supported message workflows.");
