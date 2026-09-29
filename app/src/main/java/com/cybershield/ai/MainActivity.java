@@ -7,7 +7,11 @@ import android.graphics.*;
 import android.net.Uri;
 import android.provider.Settings;
 import android.view.*;
+import android.content.pm.*;
+import android.text.InputType;
 import java.util.*;
+import java.net.*;
+import java.io.*;
 
 public class MainActivity extends Activity {
     ShieldView view;
@@ -22,6 +26,42 @@ public class MainActivity extends Activity {
     void info(String title,String msg){
         new AlertDialog.Builder(this).setTitle(title).setMessage(msg)
         .setPositiveButton("OK",null).show();
+    }
+
+    void realAppCheck(){
+        PackageManager pm=getPackageManager();
+        List<ApplicationInfo> apps=pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        int suspicious=0, checked=0;
+        StringBuilder b=new StringBuilder();
+        for(ApplicationInfo a:apps){
+            if((a.flags & ApplicationInfo.FLAG_SYSTEM)!=0) continue;
+            checked++;
+            String n=pm.getApplicationLabel(a).toString();
+            String p=a.packageName.toLowerCase(Locale.ROOT);
+            boolean risk=p.contains("mod")||p.contains("hack")||p.contains("crack")||p.contains("cheat");
+            if(risk){suspicious++; b.append("⚠ ").append(n).append(" — suspicious package name\\n");}
+        }
+        String result="Apps checked: "+checked+"\\nSuspicious indicators: "+suspicious+"\\n\\n";
+        result += suspicious==0 ? "No simple risk indicators found. This is not a malware guarantee." : b.toString();
+        info("Real App Security Check",result);
+    }
+
+    void linkCheck(){
+        final EditText input=new EditText(this);
+        input.setHint("https://example.com");
+        input.setSingleLine(true);
+        input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_URI);
+        new AlertDialog.Builder(this).setTitle("Real Link Check").setView(input)
+        .setNegativeButton("Cancel",null)
+        .setPositiveButton("Analyze",(d,w)->{
+            String u=input.getText().toString().trim().toLowerCase(Locale.ROOT);
+            if(u.isEmpty()){info("Link Check","Enter a URL first.");return;}
+            boolean https=u.startsWith("https://");
+            boolean suspicious=u.contains("@")||u.contains("bit.ly")||u.contains("tinyurl")||u.contains("free-")||u.contains("login-")||u.contains("verify-")||u.contains("reward");
+            String result="HTTPS: "+(https?"YES":"NO")+"\\nSuspicious patterns: "+(suspicious?"DETECTED":"NONE")+"\\n\\n";
+            result += suspicious ? "Risk indicator found. Do not enter passwords or payment details." : "No basic phishing indicators found. This is a heuristic check, not a guarantee.";
+            info("Link Security Result",result);
+        }).show();
     }
 
     void apkGuard(){
@@ -216,8 +256,8 @@ public class MainActivity extends Activity {
             else if(id.equals("apk"))screen="apk";
             else if(id.equals("messages"))screen="messages";
             else if(id.equals("email"))screen="email";
-            else if(id.equals("link"))screen="link";
-            else if(id.equals("apps"))screen="apps";
+            else if(id.equals("link")){screen="link";linkCheck();}
+            else if(id.equals("apps")){screen="apps";realAppCheck();}
             else if(id.equals("wifi"))screen="wifi";
             else if(id.equals("calls"))screen="calls";
             else if(id.equals("settings"))screen="settings";
