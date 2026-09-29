@@ -19,7 +19,7 @@ public class CyberCallScreeningService extends CallScreeningService{
             }
         }
         if(shouldBlock)p.edit().putInt("blocked_calls",p.getInt("blocked_calls",0)+1).apply();
-        CallResponse r=new CallResponse.Builder().setDisallow(shouldBlock).setReject(shouldBlock).setSkipNotification(shouldBlock).setSkipCallLog(false).build();
+        CallResponse r=new CallResponse.Builder().setDisallowCall(shouldBlock).setRejectCall(shouldBlock).setSkipNotification(shouldBlock).setSkipCallLog(false).build();
         respondToCall(d,r);
     }
 }
