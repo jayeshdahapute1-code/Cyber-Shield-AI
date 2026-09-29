@@ -5,6 +5,9 @@ import android.os.*;
 import android.content.*;
 import android.graphics.*;
 import android.net.Uri;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import java.security.MessageDigest;
 import android.provider.Settings;
 import android.view.*;
@@ -17,6 +20,9 @@ import java.io.*;
 
 public class MainActivity extends Activity {
     ShieldView view;
+    int lastCheckedApps=0;
+    int lastRiskApps=0;
+    String lastScanTime="Not scanned yet";
     @Override public void onCreate(Bundle b){
         super.onCreate(b);
         getWindow().setStatusBarColor(Color.rgb(2,8,7));
@@ -80,34 +86,100 @@ public class MainActivity extends Activity {
     }
 
     void scanSelectedApk(Uri uri){
+        File temp=null;
         try{
-            String path=uri.getPath()==null?"":uri.getPath();
-            String name=path.substring(path.lastIndexOf('/')+1);
-            MessageDigest md=MessageDigest.getInstance("SHA-256");
+            temp=File.createTempFile("cybershield_scan_",".apk",getCacheDir());
             InputStream in=getContentResolver().openInputStream(uri);
+            if(in==null) throw new IOException("Cannot open selected APK");
+            OutputStream out=new FileOutputStream(temp);
+            MessageDigest md=MessageDigest.getInstance("SHA-256");
             byte[] buf=new byte[8192]; int len; long size=0;
-            while((len=in.read(buf))!=-1){md.update(buf,0,len);size+=len;}
-            in.close();
+            while((len=in.read(buf))!=-1){out.write(buf,0,len);md.update(buf,0,len);size+=len;}
+            in.close(); out.close();
+
             StringBuilder hash=new StringBuilder();
             for(byte x:md.digest()) hash.append(String.format(Locale.US,"%02x",x));
+
             PackageManager pm=getPackageManager();
-            PackageInfo pi=pm.getPackageArchiveInfo(uri.toString(),PackageManager.GET_PERMISSIONS);
+            int flags=PackageManager.GET_PERMISSIONS;
+            if(Build.VERSION.SDK_INT>=28) flags|=PackageManager.GET_SIGNING_CERTIFICATES;
+            PackageInfo pi=pm.getPackageArchiveInfo(temp.getAbsolutePath(),flags);
+
             StringBuilder r=new StringBuilder();
-            r.append("File: ").append(name).append("\\n");
+            r.append("FILE ANALYSIS\\n");
             r.append("Size: ").append(size).append(" bytes\\n");
             r.append("SHA-256: ").append(hash).append("\\n\\n");
             if(pi!=null){
                 r.append("Package: ").append(pi.packageName).append("\\n");
-                r.append("Version: ").append(pi.versionName).append("\\n\\n");
-                r.append("Requested permissions:\\n");
-                if(pi.requestedPermissions!=null) for(String p:pi.requestedPermissions)
-                    r.append("• ").append(p.substring(p.lastIndexOf('.')+1)).append("\\n");
-                r.append("\\nNote: metadata/permission analysis cannot prove an APK is malware.");
-            } else {
+                r.append("Version: ").append(pi.versionName==null?"unknown":pi.versionName).append("\\n\\n");
+                r.append("REQUESTED PERMISSIONS\\n");
+                if(pi.requestedPermissions!=null){
+                    for(String p:pi.requestedPermissions){
+                        String shortName=p.substring(p.lastIndexOf('.')+1);
+                        r.append("• ").append(shortName).append("\\n");
+                    }
+                } else r.append("• None reported\\n");
+
+                if(Build.VERSION.SDK_INT>=28 && pi.signingInfo!=null){
+                    Signature[] sigs=pi.signingInfo.hasMultipleSigners()
+                            ?pi.signingInfo.getApkContentsSigners()
+                            :pi.signingInfo.getSigningCertificateHistory();
+                    if(sigs!=null && sigs.length>0){
+                        MessageDigest sd=MessageDigest.getInstance("SHA-256");
+                        byte[] cert=sd.digest(sigs[0].toByteArray());
+                        StringBuilder certHash=new StringBuilder();
+                        for(byte x:cert) certHash.append(String.format(Locale.US,"%02x",x));
+                        r.append("\\nCERTIFICATE SHA-256\\n").append(certHash).append("\\n");
+                    }
+                }
+                r.append("\\nANALYSIS LIMIT\\nMetadata, permissions and hashes do not prove malware status.");
+            }else{
                 r.append("Could not parse APK metadata. The selected file may not be a valid APK.");
             }
             info("APK Security Report",r.toString());
-        }catch(Exception e){info("APK Scanner","Scan failed: "+e.getMessage());}
+        }catch(Exception e){
+            info("APK Scanner","Scan failed safely: "+e.getMessage());
+        }finally{
+            if(temp!=null) temp.delete();
+        }
+    }
+
+
+    void runSecurityScan(){
+        try{
+            PackageManager pm=getPackageManager();
+            List<ApplicationInfo> apps=pm.getInstalledApplications(PackageManager.GET_META_DATA);
+            int checked=0,risk=0;
+            for(ApplicationInfo a:apps){
+                if((a.flags & ApplicationInfo.FLAG_SYSTEM)!=0) continue;
+                checked++;
+                String p=a.packageName.toLowerCase(Locale.ROOT);
+                if(p.contains("mod")||p.contains("crack")||p.contains("cheat")||p.contains("hack")) risk++;
+            }
+            lastCheckedApps=checked; lastRiskApps=risk;
+            lastScanTime=new java.text.SimpleDateFormat("dd MMM, HH:mm",Locale.US).format(new Date());
+            view.screen="reports";
+            view.invalidate();
+        }catch(Exception e){info("Security Scan","Scan could not complete: "+e.getMessage());}
+    }
+
+    String networkStatus(){
+        ConnectivityManager cm=(ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+        Network n=cm.getActiveNetwork();
+        if(n==null) return "No active network";
+        NetworkCapabilities caps=cm.getNetworkCapabilities(n);
+        if(caps==null) return "Network information unavailable";
+        String type=caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)?"Wi-Fi":
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)?"Mobile data":
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)?"VPN":"Other";
+        boolean validated=caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        boolean metered=!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
+        return type+" • "+(validated?"Internet validated":"Internet not validated")+" • "+(metered?"Metered":"Unmetered");
+    }
+
+    void securitySettings(){
+        try{startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));}
+        catch(Exception e){info("Security Settings","Android security settings could not be opened.");}
     }
 
     void apkGuard(){
@@ -199,28 +271,42 @@ public class MainActivity extends Activity {
             txt(c,label,(l+r)/2,t+(b-t)/2+5,13,accent,Paint.Align.CENTER);add(id,l,t,r,b);
         }
         void home(Canvas c){
-            brand(c);shield(c,180,135,68);
-            bold(c,"DEVICE SECURE",180,220,24,CYAN,Paint.Align.CENTER);
-            rect(c,112,248,248,268,Color.rgb(4,45,35),10);txt(c,"● REAL-TIME PROTECTION",180,262,8,GREEN,Paint.Align.CENTER);
-            txt(c,"No threats found",180,241,12,WHITE,Paint.Align.CENTER);
-            rect(c,15,255,345,310,PANEL,18);stroke(c,15,255,345,310,Color.rgb(20,90,75),18);
-            txt(c,"Last Scan",72,277,9,MUTED,Paint.Align.CENTER);bold(c,"Today 09:41",72,295,11,WHITE,Paint.Align.CENTER);
-            txt(c,"Protection",250,277,9,MUTED,Paint.Align.CENTER);bold(c,"HIGH",250,295,11,GREEN,Paint.Align.CENTER);
-            String[][] a={{"scan","⌕","Scan Now","Full Security Scan"},{"messages","▣","Messages","SMS & WhatsApp"},{"email","✉","Emails","Phishing Scan"},{"link","⌁","Links","URL Scan"},{"apps","▦","Apps","App Check"},{"files","□","Files","File Scan"},{"wifi","⌁","Wi-Fi","Network Check"},{"apk","⚠","APK Guard","Protect"},{"settings","⚙","Settings","Security Controls"}};
-            for(int i=0;i<a.length;i++){int col=i%3,row=i/3;float l=15+col*113,t=320+row*75;int ac=i==7?RED:(i==8?PURPLE:GREEN);rect(c,l,t,l+105,t+65,PANEL,14);stroke(c,l,t,l+105,t+65,ac,14);txt(c,a[i][1],l+18,t+23,20,ac,Paint.Align.CENTER);bold(c,a[i][2],l+53,t+25,10,WHITE,Paint.Align.CENTER);txt(c,a[i][3],l+52,t+45,7,MUTED,Paint.Align.CENTER);add(a[i][0],l,t,l+105,t+65);}
+            brand(c);
+            rect(c,15,72,345,190,Color.rgb(4,30,25),22);
+            stroke(c,15,72,345,190,Color.rgb(0,190,140),22);
+            shield(c,82,130,42);
+            bold(c,"PROTECTION CENTER",140,101,15,WHITE,Paint.Align.LEFT);
+            bold(c,"READY",140,127,24,GREEN,Paint.Align.LEFT);
+            txt(c,"Local security checks are available",140,148,9,MUTED,Paint.Align.LEFT);
+            txt(c,networkStatus(),140,167,8,CYAN,Paint.Align.LEFT);
+            button(c,"scan",22,205,175,253,GREEN);
+            button(c,"securitysettings",185,205,338,253,CYAN);
+            bold(c,"SECURITY MODULES",18,285,10,MUTED,Paint.Align.LEFT);
+            String[][] a={{"apk","⚠","APK Guard","APK metadata + hash"},{"link","⌁","Link Guard","Phishing heuristics"},{"apps","▦","App Audit","Installed app audit"},{"wifi","⌁","Network","Connectivity check"},{"messages","▣","Messages","User-enabled scan"},{"email","✉","Email","Phishing analysis"},{"calls","☎","Call Guard","Screening setup"},{"reports","▤","Reports","Scan history"},{"settings","⚙","Settings","Controls & privacy"}};
+            for(int i=0;i<a.length;i++){
+                int col=i%3,row=i/3; float l=15+col*113,t=305+row*70;
+                int ac=i==0?RED:(i==8?PURPLE:CYAN);
+                rect(c,l,t,l+105,t+60,PANEL2,14);stroke(c,l,t,l+105,t+60,Color.rgb(13,60,51),14);
+                txt(c,a[i][1],l+17,t+23,18,ac,Paint.Align.CENTER);
+                bold(c,a[i][2],l+56,t+22,9,WHITE,Paint.Align.CENTER);
+                txt(c,a[i][3],l+56,t+41,6,MUTED,Paint.Align.CENTER);
+                add(a[i][0],l,t,l+105,t+60);
+            }
         }
+
         void scan(Canvas c){
-            top(c,"Full System Scan");
-            rect(c,80,70,280,250,Color.rgb(3,25,20),80);stroke(c,80,70,280,250,GREEN,80);
-            p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(2*S);p.setColor(GREEN);c.drawCircle(X(180),Y(160),65*S,p);p.setStyle(Paint.Style.FILL);
-            txt(c,"◉",180,169,38,GREEN,Paint.Align.CENTER);
-            bold(c,"Scanning your device...",180,278,15,WHITE,Paint.Align.CENTER);
-            rect(c,32,295,328,310,Color.rgb(15,45,38),8);rect(c,32,295,235,310,GREEN,8);
-            txt(c,"68%",315,307,9,WHITE,Paint.Align.RIGHT);
-            String[] rows={"Installed Apps","Messages (SMS & WhatsApp)","Emails","Files & Storage","Network & Wi-Fi","System Security"};
-            for(int i=0;i<rows.length;i++){float y=335+i*42;txt(c,"✓",30,y,18,GREEN,Paint.Align.CENTER);bold(c,rows[i],48,y,11,WHITE,Paint.Align.LEFT);txt(c,i<3?"Scanning...":"Waiting...",330,y,9,i<3?GREEN:MUTED,Paint.Align.RIGHT);}
-            button(c,"home","STOP SCAN",105,605,255,648,Color.LTGRAY);
+            top(c,"Security Scan");
+            rect(c,20,72,340,142,PANEL2,18);stroke(c,20,72,340,142,GREEN,18);
+            txt(c,"◉",48,116,30,GREEN,Paint.Align.CENTER);
+            bold(c,"LOCAL DEVICE AUDIT",80,99,14,WHITE,Paint.Align.LEFT);
+            txt(c,"Apps • network • security configuration",80,119,9,MUTED,Paint.Align.LEFT);
+            button(c,"startscan","RUN FULL AUDIT",60,165,300,212,GREEN);
+            card(c,230,70,CYAN,"Installed apps","Tap Run Full Audit to inspect non-system apps.");
+            card(c,315,70,CYAN,"Network","Current: "+networkStatus());
+            card(c,400,70,YELLOW,"APK Guard","Select an APK to calculate hash and metadata.");
+            txt(c,"No cloud upload is performed by these local checks.",180,500,8,MUTED,Paint.Align.CENTER);
         }
+
         void threat(Canvas c){
             top(c,"Threat Detected");
             rect(c,15,65,345,135,Color.rgb(40,5,9),14);stroke(c,15,65,345,135,RED,14);txt(c,"⚠",38,103,28,RED,Paint.Align.CENTER);bold(c,"HIGH RISK",72,94,18,RED,Paint.Align.LEFT);txt(c,"Suspicious Message Found",72,116,10,WHITE,Paint.Align.LEFT);
@@ -278,20 +364,45 @@ public class MainActivity extends Activity {
         }
         void settings(Canvas c){
             top(c,"Settings");
-            rect(c,15,54,345,67,Color.rgb(3,45,37),7);
-            txt(c,"SYSTEM STATUS  •  PROTECTION ACTIVE",180,63,6,GREEN,Paint.Align.CENTER);
-            String[][] s={{"🛡","CyberShield AI","v2.3.1 • Pro Protection"},{"◉","Security Center","Real-time protection"},{"◷","Scan Schedule","Daily 9:00 AM"},{"!","Notification Settings","Threat alerts"},{"◉","Privacy & Permissions","Control access"},{"☾","Dark Mode","ON"},{"文","Language","English"},{"?","Help & Support","Get assistance"},{"ⓘ","About Us","CyberShield AI"}};
-            for(int i=0;i<s.length;i++){float y=78+i*62;rect(c,12,y,348,y+53,PANEL2,14);stroke(c,12,y,348,y+53,Color.rgb(12,52,45),14);txt(c,s[i][0],30,y+30,17,i==0?GREEN:CYAN,Paint.Align.CENTER);bold(c,s[i][1],55,y+21,10,WHITE,Paint.Align.LEFT);txt(c,s[i][2],55,y+39,8,MUTED,Paint.Align.LEFT);txt(c,"›",330,y+31,20,MUTED,Paint.Align.CENTER);}
+            rect(c,15,70,345,124,Color.rgb(4,32,27),16);stroke(c,15,70,345,124,Color.rgb(0,190,140),16);
+            txt(c,"●",35,101,18,GREEN,Paint.Align.CENTER);
+            bold(c,"PROTECTION ACTIVE",60,95,13,WHITE,Paint.Align.LEFT);
+            txt(c,"Local analysis • Privacy-first",60,113,8,MUTED,Paint.Align.LEFT);
+            String[][] s={{"securitysettings","◉","Android Security","Open system security controls"},
+                          {"scan","⌁","Scan Center","Run local device audit"},
+                          {"apk","⚠","APK Guard","Select and inspect APK files"},
+                          {"link","⌁","Link Guard","Analyze suspicious URLs"},
+                          {"apps","▦","App Audit","Review installed apps"},
+                          {"reports","▤","Reports","View latest scan summary"},
+                          {"ai","◉","AI Assistant","Security guidance & analysis"},
+                          {"about","ⓘ","About CyberShield AI","Version 1.2.0"}};
+            for(int i=0;i<s.length;i++){
+                float y=138+i*61;
+                rect(c,15,y,345,y+50,PANEL2,14);stroke(c,15,y,345,y+50,Color.rgb(11,55,47),14);
+                txt(c,s[i][1],34,y+29,17,i==2?RED:CYAN,Paint.Align.CENTER);
+                bold(c,s[i][2],58,y+20,10,WHITE,Paint.Align.LEFT);
+                txt(c,s[i][3],58,y+37,7,MUTED,Paint.Align.LEFT);
+                txt(c,"›",326,y+30,20,MUTED,Paint.Align.CENTER);
+                add(s[i][0],15,y,345,y+50);
+            }
         }
+
         void reports(Canvas c){
             top(c,"Security Reports");
-            rect(c,15,72,345,195,PANEL,18);bold(c,"TODAY",30,100,11,MUTED,Paint.Align.LEFT);bold(c,"42",30,150,36,GREEN,Paint.Align.LEFT);txt(c,"scans completed",30,173,10,WHITE,Paint.Align.LEFT);
-            bold(c,"28",145,150,28,CYAN,Paint.Align.CENTER);txt(c,"safe",145,173,9,WHITE,Paint.Align.CENTER);
-            bold(c,"8",220,150,28,YELLOW,Paint.Align.CENTER);txt(c,"suspicious",220,173,9,WHITE,Paint.Align.CENTER);
-            bold(c,"6",295,150,28,RED,Paint.Align.CENTER);txt(c,"blocked",295,173,9,WHITE,Paint.Align.CENTER);
-            card(c,215,110,GREEN,"Protection Status","APK Guard ON • Link Guard ON\nMessage Scanner ON • Wi-Fi Guard ON");
-            card(c,340,110,CYAN,"Recent Activity","Phishing link blocked\nSuspicious APK scanned\nUnsafe Wi-Fi detected");
+            rect(c,15,72,345,205,PANEL2,18);stroke(c,15,72,345,205,CYAN,18);
+            bold(c,"LATEST LOCAL AUDIT",30,101,10,MUTED,Paint.Align.LEFT);
+            bold(c,lastScanTime,30,126,18,WHITE,Paint.Align.LEFT);
+            bold(c,String.valueOf(lastCheckedApps),72,165,28,CYAN,Paint.Align.CENTER);
+            txt(c,"apps checked",72,185,8,MUTED,Paint.Align.CENTER);
+            bold(c,String.valueOf(lastRiskApps),180,165,28,lastRiskApps>0?YELLOW:GREEN,Paint.Align.CENTER);
+            txt(c,"risk indicators",180,185,8,MUTED,Paint.Align.CENTER);
+            bold(c,networkStatus().startsWith("No active")?"OFF":"ON",288,165,24,GREEN,Paint.Align.CENTER);
+            txt(c,"network",288,185,8,MUTED,Paint.Align.CENTER);
+            card(c,225,82,GREEN,"What this report means","These are local checks, not a certified malware verdict.");
+            card(c,320,82,CYAN,"Next actions","Inspect APKs, links and apps individually for more detail.");
+            button(c,"startscan","RUN AUDIT AGAIN",60,425,300,470,GREEN);
         }
+
         void ai(Canvas c){
             top(c,"AI Security Assistant");rect(c,15,72,345,170,PANEL,18);txt(c,"◉",180,115,40,PURPLE,Paint.Align.CENTER);bold(c,"CyberShield AI",180,142,16,WHITE,Paint.Align.CENTER);txt(c,"Ask about a security alert, link or app.",180,160,9,MUTED,Paint.Align.CENTER);
             String[] q={"Is this message safe?","Check this link for phishing","Is this APK risky?","Explain this security alert"};
@@ -328,12 +439,12 @@ public class MainActivity extends Activity {
             else if(id.equals("scanapk"))apkGuard();
             else if(id.equals("continueapk"))info("Warning","Installing an unknown APK can expose your device to malware. Continue only if you trust the source.");
             else if(id.equals("cancelapk"))info("APK Guard","Installation cancelled.");
-            else if(id.equals("block"))info("Threat blocked","The suspicious message has been marked as blocked in this demo.");
-            else if(id.equals("scanlink"))info("Link Scan","AI analysis complete: suspicious-domain indicators detected.");
-            else if(id.equals("scanmsg"))info("Message Scan","Scan complete: 1 dangerous, 1 suspicious, 5 safe.");
-            else if(id.equals("scanemail"))info("Email Scan","Scan complete: 1 phishing, 1 suspicious, 4 safe.");
-            else if(id.equals("scanapps"))info("App Scan","6 apps checked. 1 high-risk, 1 suspicious, 4 safe.");
-            else if(id.equals("disconnect"))info("Wi-Fi Security","Disconnect request sent. Check your device Wi-Fi settings if needed.");
+            else if(id.equals("block"))info("Message Protection","Blocking message content requires the appropriate Android role/permission. No message was silently deleted.");
+            else if(id.equals("scanlink"))linkCheck();
+            else if(id.equals("scanmsg"))info("Message Scanner","This module requires user-granted SMS/notification access before it can inspect message content.");
+            else if(id.equals("scanemail"))info("Email Scanner","Connect an email provider through OAuth before scanning message content.");
+            else if(id.equals("scanapps"))realAppCheck();
+            else if(id.equals("disconnect"))info("Network Security",networkStatus()+"\n\nCyberShield AI cannot silently disconnect or reconfigure another network.");
             else if(id.equals("blockcall"))info("Call Guard","Caller blocked in this demo. Real call blocking requires supported Android APIs.");
             else if(id.equals("reportcall"))info("Call Guard","Spam report prepared.");
             else if(id.equals("allowcall"))info("Call Guard","Caller allowed.");
