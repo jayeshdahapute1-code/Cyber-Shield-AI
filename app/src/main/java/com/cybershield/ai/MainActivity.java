@@ -296,7 +296,8 @@ public class MainActivity extends Activity {
         }
 
         void action(String id){
-            if(id.equals("scan"))screen="scan";
+            if(id.equals("home"))screen="home";
+            else if(id.equals("scan"))screen="scan";
             else if(id.equals("apk"))screen="apk";
             else if(id.equals("messages"))screen="messages";
             else if(id.equals("email"))screen="email";
