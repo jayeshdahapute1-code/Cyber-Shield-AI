@@ -31,16 +31,12 @@ public class MainActivity extends Activity {
     }
 
     @Override public void onBackPressed(){
-        if(!view.screen.equals("home")){ view.screen="home"; view.invalidate(); }
-        else super.onBackPressed();
-    }
-
-    @Override public void onBackPressed(){
         if(view!=null && !view.screen.equals("home")){
             view.screen="home";
             view.invalidate();
         } else super.onBackPressed();
     }
+
 
     void info(String title,String msg){
         new AlertDialog.Builder(this).setTitle(title).setMessage(msg)
@@ -72,7 +68,6 @@ public class MainActivity extends Activity {
         input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_URI);
         new AlertDialog.Builder(this).setTitle("Real Link Check").setView(input)
         .setNegativeButton("Cancel",null)
-        .setPositiveButton("Select APK",(d,w)->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("application/vnd.android.package-archive");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,42);})
         .setPositiveButton("Analyze",(d,w)->{
             String u=input.getText().toString().trim().toLowerCase(Locale.ROOT);
             if(u.isEmpty()){info("Link Check","Enter a URL first.");return;}
@@ -126,7 +121,7 @@ public class MainActivity extends Activity {
                 startActivity(i);
             }catch(Exception e){startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));}
         })
-        .setPositiveButton("Scan APK",(d,w)->info("AI APK Scan","Static analysis module ready.\n\nResult: verify the source and signature before installing." )).show();
+        .setPositiveButton("Select APK",(d,w)->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("application/vnd.android.package-archive");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,42);}).show();
     }
 
     class ShieldView extends View {
@@ -283,8 +278,10 @@ public class MainActivity extends Activity {
         }
         void settings(Canvas c){
             top(c,"Settings");
+            rect(c,15,54,345,67,Color.rgb(3,45,37),7);
+            txt(c,"SYSTEM STATUS  •  PROTECTION ACTIVE",180,63,6,GREEN,Paint.Align.CENTER);
             String[][] s={{"🛡","CyberShield AI","v2.3.1 • Pro Protection"},{"◉","Security Center","Real-time protection"},{"◷","Scan Schedule","Daily 9:00 AM"},{"!","Notification Settings","Threat alerts"},{"◉","Privacy & Permissions","Control access"},{"☾","Dark Mode","ON"},{"文","Language","English"},{"?","Help & Support","Get assistance"},{"ⓘ","About Us","CyberShield AI"}};
-            for(int i=0;i<s.length;i++){float y=70+i*62;rect(c,12,y,348,y+53,PANEL,12);txt(c,s[i][0],30,y+30,17,i==0?GREEN:CYAN,Paint.Align.CENTER);bold(c,s[i][1],55,y+21,10,WHITE,Paint.Align.LEFT);txt(c,s[i][2],55,y+39,8,MUTED,Paint.Align.LEFT);txt(c,"›",330,y+31,20,MUTED,Paint.Align.CENTER);}
+            for(int i=0;i<s.length;i++){float y=78+i*62;rect(c,12,y,348,y+53,PANEL2,14);stroke(c,12,y,348,y+53,Color.rgb(12,52,45),14);txt(c,s[i][0],30,y+30,17,i==0?GREEN:CYAN,Paint.Align.CENTER);bold(c,s[i][1],55,y+21,10,WHITE,Paint.Align.LEFT);txt(c,s[i][2],55,y+39,8,MUTED,Paint.Align.LEFT);txt(c,"›",330,y+31,20,MUTED,Paint.Align.CENTER);}
         }
         void reports(Canvas c){
             top(c,"Security Reports");
