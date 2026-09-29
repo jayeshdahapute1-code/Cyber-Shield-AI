@@ -29,17 +29,17 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build Safe Install + Full Protection releases
-        run: gradle --no-daemon assembleSafeRelease assembleFullRelease --stacktrace
+      - name: Build Safe Install + Full Protection debug APKs
+        run: gradle --no-daemon assembleSafeDebug assembleFullDebug --stacktrace
 
       - name: Upload Safe Install APK
         uses: actions/upload-artifact@v4
         with:
           name: CyberShieldAI-SafeInstall
-          path: app/build/outputs/apk/safe/release/app-safe-release.apk
+          path: app/build/outputs/apk/safe/debug/app-safe-debug.apk
 
       - name: Upload Full Protection APK
         uses: actions/upload-artifact@v4
         with:
           name: CyberShieldAI-FullProtection
-          path: app/build/outputs/apk/full/release/app-full-release.apk
+          path: app/build/outputs/apk/full/debug/app-full-debug.apk
