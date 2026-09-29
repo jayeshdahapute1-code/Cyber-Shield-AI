@@ -35,6 +35,13 @@ public class MainActivity extends Activity {
         else super.onBackPressed();
     }
 
+    @Override public void onBackPressed(){
+        if(view!=null && !view.screen.equals("home")){
+            view.screen="home";
+            view.invalidate();
+        } else super.onBackPressed();
+    }
+
     void info(String title,String msg){
         new AlertDialog.Builder(this).setTitle(title).setMessage(msg)
         .setPositiveButton("OK",null).show();
@@ -145,7 +152,7 @@ public class MainActivity extends Activity {
             super.onDraw(c);
             float W=getWidth(),H=getHeight();
             S=Math.min(W/360f,H/760f); OX=(W-360*S)/2f; OY=0;
-            fill(c,BG); grid(c);
+            fill(c,BG); hit.clear(); grid(c);
             if(screen.equals("home"))home(c);
             else if(screen.equals("scan"))scan(c);
             else if(screen.equals("threat"))threat(c);
@@ -168,10 +175,13 @@ public class MainActivity extends Activity {
             for(int y=0;y<=760;y+=24)c.drawLine(X(0),Y(y),X(360),Y(y),p);
         }
         void top(Canvas c,String title){
-            txt(c,"‹",18,39,34,WHITE,Paint.Align.CENTER);
-            bold(c,title,42,34,17,WHITE,Paint.Align.LEFT);
-            txt(c,"⋮",338,34,25,MUTED,Paint.Align.CENTER);
-            add("back",0,0,55,65);
+            rect(c,10,12,350,58,Color.rgb(4,22,19),14);
+            stroke(c,10,12,350,58,Color.rgb(18,76,63),14);
+            txt(c,"‹",31,43,32,WHITE,Paint.Align.CENTER);
+            bold(c,title,55,38,16,WHITE,Paint.Align.LEFT);
+            rect(c,286,24,337,48,Color.rgb(5,50,39),12);
+            txt(c,"● LIVE",311,40,8,GREEN,Paint.Align.CENTER);
+            add("back",10,12,52,60);
         }
         void brand(Canvas c){
             bold(c,"CyberShield",22,36,24,WHITE,Paint.Align.LEFT);
@@ -196,6 +206,7 @@ public class MainActivity extends Activity {
         void home(Canvas c){
             brand(c);shield(c,180,135,68);
             bold(c,"DEVICE SECURE",180,220,24,CYAN,Paint.Align.CENTER);
+            rect(c,112,248,248,268,Color.rgb(4,45,35),10);txt(c,"● REAL-TIME PROTECTION",180,262,8,GREEN,Paint.Align.CENTER);
             txt(c,"No threats found",180,241,12,WHITE,Paint.Align.CENTER);
             rect(c,15,255,345,310,PANEL,18);stroke(c,15,255,345,310,Color.rgb(20,90,75),18);
             txt(c,"Last Scan",72,277,9,MUTED,Paint.Align.CENTER);bold(c,"Today 09:41",72,295,11,WHITE,Paint.Align.CENTER);
@@ -290,9 +301,16 @@ public class MainActivity extends Activity {
             for(int i=0;i<q.length;i++)button(c,"q"+i,q[i],25,195+i*58,335,238+i*58,PURPLE);
         }
         void nav(Canvas c){
-            rect(c,0,665,360,760,Color.rgb(3,14,12),0);
-            String[][] n={{"home","⌂","Home"},{"threat","!","Threats"},{"reports","▤","Reports"},{"ai","◉","AI Assistant"}};
-            for(int i=0;i<n.length;i++){float x=45+i*90;int ac=(screen.equals(n[i][0])?GREEN:MUTED);txt(c,n[i][1],x,698,20,ac,Paint.Align.CENTER);txt(c,n[i][2],x,720,8,ac,Paint.Align.CENTER);add(n[i][0],x-35,675,x+35,740);}
+            rect(c,0,665,360,760,Color.rgb(2,12,10),0);
+            line(c,0,665,360,665,Color.rgb(15,60,50),1);
+            String[][] n={{"home","⌂","HOME"},{"threat","!","THREATS"},{"reports","▤","REPORTS"},{"ai","◉","AI"}};
+            for(int i=0;i<n.length;i++){
+                float x=45+i*90; boolean active=screen.equals(n[i][0]); int ac=active?GREEN:MUTED;
+                if(active) rect(c,x-28,676,x+28,704,Color.rgb(4,50,39),14);
+                txt(c,n[i][1],x,697,19,ac,Paint.Align.CENTER);
+                txt(c,n[i][2],x,722,7,ac,Paint.Align.CENTER);
+                add(n[i][0],x-42,670,x+42,744);
+            }
         }
 
         void action(String id){
