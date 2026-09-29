@@ -12,10 +12,10 @@ public class CyberNotificationService extends NotificationListenerService{
         CharSequence a=n.extras==null?null:n.extras.getCharSequence(Notification.EXTRA_TITLE);
         CharSequence b=n.extras==null?null:n.extras.getCharSequence(Notification.EXTRA_TEXT);
         String x=((a==null?"":a.toString())+" "+(b==null?"":b.toString())).toLowerCase();
-        boolean risk=x.contains("otp")||x.contains("verify")||x.contains("winner")||x.contains("reward")||x.contains("urgent")||x.contains("password");
+        boolean risk=x.contains("otp")||x.contains("verify")||x.contains("winner")||x.contains("reward")||x.contains("urgent")||x.contains("password")||x.contains("click here")||x.contains("claim now");
         SharedPreferences p=getSharedPreferences("security",MODE_PRIVATE);
         int total=p.getInt("notification_scanned",0)+1;
         int risks=p.getInt("notification_risks",0)+(risk?1:0);
-        p.edit().putInt("notification_scanned",total).putInt("notification_risks",risks).apply();
+        p.edit().putInt("notification_scanned",total).putInt("notification_risks",risks).putString("last_notification",((a==null?"":a.toString())+" "+(b==null?"":b.toString()))).apply();
     }
 }
