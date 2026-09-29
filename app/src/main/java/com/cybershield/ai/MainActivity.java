@@ -5,6 +5,7 @@ import android.os.*;
 import android.content.*;
 import android.graphics.*;
 import android.net.Uri;
+import java.security.MessageDigest;
 import android.provider.Settings;
 import android.view.*;
 import android.content.pm.*;
@@ -21,6 +22,11 @@ public class MainActivity extends Activity {
         getWindow().setNavigationBarColor(Color.rgb(2,8,7));
         view=new ShieldView(this);
         setContentView(view);
+    }
+
+    @Override protected void onActivityResult(int requestCode,int resultCode,Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode==42 && resultCode==RESULT_OK && data!=null && data.getData()!=null) scanSelectedApk(data.getData());
     }
 
     void info(String title,String msg){
@@ -53,6 +59,7 @@ public class MainActivity extends Activity {
         input.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_URI);
         new AlertDialog.Builder(this).setTitle("Real Link Check").setView(input)
         .setNegativeButton("Cancel",null)
+        .setPositiveButton("Select APK",(d,w)->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("application/vnd.android.package-archive");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,42);})
         .setPositiveButton("Analyze",(d,w)->{
             String u=input.getText().toString().trim().toLowerCase(Locale.ROOT);
             if(u.isEmpty()){info("Link Check","Enter a URL first.");return;}
@@ -62,6 +69,37 @@ public class MainActivity extends Activity {
             result += suspicious ? "Risk indicator found. Do not enter passwords or payment details." : "No basic phishing indicators found. This is a heuristic check, not a guarantee.";
             info("Link Security Result",result);
         }).show();
+    }
+
+    void scanSelectedApk(Uri uri){
+        try{
+            String path=uri.getPath()==null?"":uri.getPath();
+            String name=path.substring(path.lastIndexOf('/')+1);
+            MessageDigest md=MessageDigest.getInstance("SHA-256");
+            InputStream in=getContentResolver().openInputStream(uri);
+            byte[] buf=new byte[8192]; int len; long size=0;
+            while((len=in.read(buf))!=-1){md.update(buf,0,len);size+=len;}
+            in.close();
+            StringBuilder hash=new StringBuilder();
+            for(byte x:md.digest()) hash.append(String.format(Locale.US,"%02x",x));
+            PackageManager pm=getPackageManager();
+            PackageInfo pi=pm.getPackageArchiveInfo(uri.toString(),PackageManager.GET_PERMISSIONS);
+            StringBuilder r=new StringBuilder();
+            r.append("File: ").append(name).append("\\n");
+            r.append("Size: ").append(size).append(" bytes\\n");
+            r.append("SHA-256: ").append(hash).append("\\n\\n");
+            if(pi!=null){
+                r.append("Package: ").append(pi.packageName).append("\\n");
+                r.append("Version: ").append(pi.versionName).append("\\n\\n");
+                r.append("Requested permissions:\\n");
+                if(pi.requestedPermissions!=null) for(String p:pi.requestedPermissions)
+                    r.append("• ").append(p.substring(p.lastIndexOf('.')+1)).append("\\n");
+                r.append("\\nNote: metadata/permission analysis cannot prove an APK is malware.");
+            } else {
+                r.append("Could not parse APK metadata. The selected file may not be a valid APK.");
+            }
+            info("APK Security Report",r.toString());
+        }catch(Exception e){info("APK Scanner","Scan failed: "+e.getMessage());}
     }
 
     void apkGuard(){
