@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
         b.setOnClickListener(v->{try{startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));}catch(Exception e){startActivity(new Intent(Settings.ACTION_SETTINGS));}});s.setOnClickListener(v->out.setText(notifyStatus()));
         nav(p,"home");mount(p);
     }
-    String notifyStatus(){boolean enabled=false;if(Build.VERSION.SDK_INT>=27){android.app.NotificationManager nm=(android.app.NotificationManager)getSystemService(NOTIFICATION_SERVICE);enabled=nm.isNotificationListenerAccessGranted(new ComponentName(this,CyberNotificationService.class));}return"Access: "+(enabled?"ENABLED":"NOT ENABLED")+"\nNotifications analyzed: "+prefs.getInt("notification_scanned",0)+"\nRisk indicators: "+prefs.getInt("notification_risks",0);}
+    String notifyStatus(){return CyberFeatures.notificationStatus(this);}
     void email(){
         LinearLayout p=page();header(p,"Email Scanner","Secure provider connection");LinearLayout c=card(p,YELLOW);cardText(c,"EMAIL SCANNING","Real mailbox scanning requires explicit provider authorization. This app will not show fake inbox results.");
         Button b=btn("CONNECT EMAIL PROVIDER",YELLOW);c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));c.addView(txt("Next integration: Gmail/Microsoft OAuth plus server-side reputation checks.\n\nAPI secrets must never be embedded in the APK.",10,WHITE,false),new LinearLayout.LayoutParams(-1,dp(150)));b.setOnClickListener(v->Toast.makeText(this,"Email OAuth module is not connected yet.",Toast.LENGTH_LONG).show());nav(p,"home");mount(p);
