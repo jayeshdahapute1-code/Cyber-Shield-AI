@@ -17,7 +17,18 @@ public final class SecurityEngine {
         ScanResult r=new ScanResult(); PackageManager pm=c.getPackageManager();
         List<ApplicationInfo> apps=pm.getInstalledApplications(PackageManager.GET_META_DATA); StringBuilder b=new StringBuilder();
         for(ApplicationInfo a:apps){if((a.flags&ApplicationInfo.FLAG_SYSTEM)!=0)continue;r.checked++;String p=a.packageName.toLowerCase(Locale.ROOT);
-            if(p.contains("mod")||p.contains("crack")||p.contains("cheat")||p.contains("hack")||p.contains("spy")){r.risks++;b.append("• ").append(pm.getApplicationLabel(a)).append("\n");}}
+            boolean indicator=p.contains("mod")||p.contains("crack")||p.contains("cheat")||p.contains("hack")||p.contains("spy");
+            try{
+                android.content.pm.PackageInfo pi=pm.getPackageInfo(a.packageName,PackageManager.GET_PERMISSIONS);
+                if((a.flags&ApplicationInfo.FLAG_DEBUGGABLE)!=0) indicator=true;
+                if(pi.requestedPermissions!=null){
+                    for(String q:pi.requestedPermissions){
+                        String ql=q.toLowerCase(Locale.ROOT);
+                        if(ql.contains("request_install_packages")||ql.contains("system_alert_window")||ql.contains("bind_accessibility_service")||ql.contains("query_all_packages")){indicator=true;break;}
+                    }
+                }
+            }catch(Exception ignored){}
+            if(indicator){r.risks++;b.append("• ").append(pm.getApplicationLabel(a)).append("\n");}}
         r.details=b.length()==0?"No simple package-name indicators found.":b.toString();return r;
     }
     public static String analyzeUrl(String raw){
