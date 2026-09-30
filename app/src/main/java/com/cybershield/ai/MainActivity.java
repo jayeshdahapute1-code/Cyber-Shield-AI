@@ -85,24 +85,24 @@ public class MainActivity extends Activity {
         String[][] a={{"⌂","Home","home"},{"◆","Threats","threats"},{"▥","Reports","reports"},{"●","AI Assistant","ai"}};
         for(String[] x:a){
             Button b=btn(x[0]+"\n"+x[1],active.equals(x[2])?BLUE:MUTED);
-            b.setTextSize(10); b.setGravity(Gravity.CENTER); b.setBackground(active.equals(x[2])?bg(Color.rgb(239,246,255),20,0):bg(Color.TRANSPARENT,20,0));
-            n.addView(b,new LinearLayout.LayoutParams(0,dp(58),1));
+            b.setTextSize(13); b.setGravity(Gravity.CENTER); b.setBackground(active.equals(x[2])?bg(Color.rgb(239,246,255),20,0):bg(Color.TRANSPARENT,20,0));
+            n.addView(b,new LinearLayout.LayoutParams(0,dp(68),1));
             b.setOnClickListener(v->{if(x[2].equals("home"))home();else if(x[2].equals("reports"))reports();else if(x[2].equals("ai"))ai();else threats();});
-        } p.addView(n,new LinearLayout.LayoutParams(-1,dp(62)));
+        } p.addView(n,new LinearLayout.LayoutParams(-1,dp(76)));
     }
     void home(){
         LinearLayout p=page(); header(p);
         LinearLayout hero=panel(p,Color.rgb(232,248,255)); hero.setPadding(dp(12),dp(11),dp(12),dp(11));
         LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
         TextView ring=txt("✓\n98%\nSecure",20,NAVY,true);ring.setGravity(Gravity.CENTER);ring.setBackground(bg(Color.WHITE,90,BLUE));
-        top.addView(ring,new LinearLayout.LayoutParams(dp(104),dp(104)));
+        top.addView(ring,new LinearLayout.LayoutParams(dp(112),dp(112)));
         LinearLayout info=new LinearLayout(this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(16),0,0,0);
         info.addView(txt("✓  Your Device is Protected",15,NAVY,true),new LinearLayout.LayoutParams(-1,dp(36)));
         int checked=prefs.getInt("checked",0),risk=prefs.getInt("risk",0);
         info.addView(txt(checked+" apps scanned  •  "+risk+" risk indicators",10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(30)));
         info.addView(txt(SecurityEngine.networkStatus(this),10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(35)));
         View bar=new View(this);bar.setBackground(gradient(BLUE,CYAN,8));info.addView(bar,new LinearLayout.LayoutParams(-1,dp(9)));space(info,5);Button audit=primary("▶  Run Full Security Audit");info.addView(audit,new LinearLayout.LayoutParams(-1,dp(38)));audit.setOnClickListener(v->audit());
-        top.addView(info,new LinearLayout.LayoutParams(0,dp(104),1));hero.addView(top);
+        top.addView(info,new LinearLayout.LayoutParams(0,dp(150),1));hero.addView(top,new LinearLayout.LayoutParams(-1,dp(150)));
         space(p,8);LinearLayout sh=new LinearLayout(this);sh.setGravity(Gravity.CENTER_VERTICAL);
         sh.addView(txt("Security Modules",21,NAVY,true),new LinearLayout.LayoutParams(0,dp(40),1));
         TextView all=txt("All Modules  ›",13,BLUE,true);sh.addView(all,new LinearLayout.LayoutParams(dp(100),dp(40)));p.addView(sh);
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
         Button ask=btn("Ask anything about your security...   ›",PURPLE);ask.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);ask.setBackground(bg(Color.WHITE,25,Color.rgb(196,177,255)));at.addView(ask,new LinearLayout.LayoutParams(-1,dp(42)));ar.addView(at,new LinearLayout.LayoutParams(0,dp(125),1));ai.addView(ar);ask.setOnClickListener(v->ai());
         LinearLayout status=panel(p,Color.WHITE);status.setOrientation(LinearLayout.HORIZONTAL);
         String[] ss={"✓\nReal-time\nProtection","☎\nCall Guard","▤\nMessage Guard","⌁\nNetwork Safe"};
-        for(String s:ss){TextView t=txt(s,9,s.startsWith("✓")?GREEN:NAVY,true);t.setGravity(Gravity.CENTER);status.addView(t,new LinearLayout.LayoutParams(0,dp(52),1));}
+        for(String s:ss){TextView t=txt(s,12,s.startsWith("✓")?GREEN:NAVY,true);t.setGravity(Gravity.CENTER);t.setLineSpacing(1.05f,1.0f);status.addView(t,new LinearLayout.LayoutParams(0,dp(68),1));}
         nav(p,"home");mount(p);
     }
     int color(String s){if(s.equals("green"))return GREEN;if(s.equals("purple"))return PURPLE;if(s.equals("pink"))return PINK;if(s.equals("red"))return RED;if(s.equals("orange"))return ORANGE;if(s.equals("gray"))return Color.rgb(92,110,133);return CYAN;}
