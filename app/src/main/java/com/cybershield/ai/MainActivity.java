@@ -101,7 +101,7 @@ public class MainActivity extends Activity {
         int checked=prefs.getInt("checked",0),risk=prefs.getInt("risk",0);
         info.addView(txt(checked+" apps scanned  •  "+risk+" risk indicators",10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(30)));
         info.addView(txt(SecurityEngine.networkStatus(this),10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(35)));
-        View bar=new View(this);bar.setBackground(gradient(BLUE,CYAN,8));info.addView(bar,new LinearLayout.LayoutParams(-1,dp(9)));space(info,5);Button audit=primary("▶  Run Full Security Audit");info.addView(audit,new LinearLayout.LayoutParams(-1,dp(38)));audit.setOnClickListener(v->audit());
+        Button audit=primary("▶  Run Full Security Audit");info.addView(audit,new LinearLayout.LayoutParams(-1,dp(48)));audit.setOnClickListener(v->audit());
         top.addView(info,new LinearLayout.LayoutParams(0,dp(150),1));hero.addView(top,new LinearLayout.LayoutParams(-1,dp(150)));
         space(p,8);LinearLayout sh=new LinearLayout(this);sh.setGravity(Gravity.CENTER_VERTICAL);
         sh.addView(txt("Security Modules",21,NAVY,true),new LinearLayout.LayoutParams(0,dp(40),1));
