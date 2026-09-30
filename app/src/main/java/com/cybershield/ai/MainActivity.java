@@ -96,11 +96,11 @@ public class MainActivity extends Activity {
         LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
         TextView ring=txt("✓\n98%\nSecure",20,NAVY,true);ring.setGravity(Gravity.CENTER);ring.setBackground(bg(Color.WHITE,90,BLUE));
         top.addView(ring,new LinearLayout.LayoutParams(dp(88),dp(88)));
-        LinearLayout info=new LinearLayout(this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(16),0,0,0);
-        info.addView(txt("✓  Your Device is Protected",15,NAVY,true),new LinearLayout.LayoutParams(-1,dp(23)));
+        LinearLayout info=new LinearLayout(this);info.setOrientation(LinearLayout.VERTICAL);info.setGravity(Gravity.CENTER_VERTICAL);info.setPadding(dp(12),0,dp(4),0);
+        TextView protectedTitle=txt("✓  Your Device is Protected",16,NAVY,true);protectedTitle.setGravity(Gravity.CENTER_VERTICAL);info.addView(protectedTitle,new LinearLayout.LayoutParams(-1,dp(28)));
         int checked=prefs.getInt("checked",0),risk=prefs.getInt("risk",0);
-        info.addView(txt(checked+" apps scanned  •  "+risk+" risk indicators",10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(23)));
-        info.addView(txt(SecurityEngine.networkStatus(this),10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(30)));
+        TextView scanLine=txt(checked+" apps scanned  •  "+risk+" risk indicators",10,MUTED,false);scanLine.setGravity(Gravity.CENTER_VERTICAL);info.addView(scanLine,new LinearLayout.LayoutParams(-1,dp(24)));
+        TextView networkLine=txt(SecurityEngine.networkStatus(this),9,MUTED,false);networkLine.setGravity(Gravity.CENTER_VERTICAL);info.addView(networkLine,new LinearLayout.LayoutParams(-1,dp(25)));
         Button audit=primary("▶  Run Full Security Audit");info.addView(audit,new LinearLayout.LayoutParams(-1,dp(38)));audit.setOnClickListener(v->audit());
         top.addView(info,new LinearLayout.LayoutParams(0,dp(102),1));hero.addView(top,new LinearLayout.LayoutParams(-1,dp(102)));
         space(p,8);LinearLayout sh=new LinearLayout(this);sh.setGravity(Gravity.CENTER_VERTICAL);
