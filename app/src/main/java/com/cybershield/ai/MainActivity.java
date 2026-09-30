@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
     }
     LinearLayout page(){
         LinearLayout p=new LinearLayout(this); p.setOrientation(LinearLayout.VERTICAL);
-        p.setPadding(dp(14),dp(7),dp(14),dp(14)); p.setBackgroundColor(BG); return p;
+        p.setPadding(dp(14),dp(28),dp(14),dp(14)); p.setBackgroundColor(BG); return p;
     }
     void mount(LinearLayout p){ScrollView s=new ScrollView(this);s.setFillViewport(true);s.setBackgroundColor(BG);s.addView(p);setContentView(s);}
     void space(LinearLayout p,int h){p.addView(new Space(this),new LinearLayout.LayoutParams(1,dp(h)));}
@@ -138,7 +138,7 @@ public class MainActivity extends Activity {
     }
     void headerBack(LinearLayout p,String title,String sub){
         LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);TextView back=txt("‹",34,NAVY,false);back.setGravity(Gravity.CENTER);h.addView(back,new LinearLayout.LayoutParams(dp(42),dp(55)));
-        LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);l.addView(txt(title,19,NAVY,true),new LinearLayout.LayoutParams(-1,dp(30)));l.addView(txt(sub,10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(22)));h.addView(l,new LinearLayout.LayoutParams(0,dp(55),1));back.setOnClickListener(v->home());p.addView(h,new LinearLayout.LayoutParams(-1,dp(62)));
+        LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);l.addView(txt(title,19,NAVY,true),new LinearLayout.LayoutParams(-1,dp(30)));l.addView(txt(sub,10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(22)));h.addView(l,new LinearLayout.LayoutParams(0,dp(55),1));h.setPadding(0,dp(2),0,0);back.setOnClickListener(v->home());p.addView(h,new LinearLayout.LayoutParams(-1,dp(62)));
     }
     void apps(){LinearLayout p=page();headerBack(p,"App Security","Installed-app audit");LinearLayout c=panel(p,Color.WHITE);title(c,"Installed App Scanner","Real package metadata, permissions and installed-app inventory.");Button b=primary("Scan All Installed Apps");c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));TextView out=txt("No audit run yet.",10,TEXT,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(300)));b.setOnClickListener(v->new Thread(()->{SecurityEngine.ScanResult r=SecurityEngine.scanApps(this);prefs.edit().putInt("checked",r.checked).putInt("risk",r.risks).putString("time",new SimpleDateFormat("dd MMM yyyy, HH:mm",Locale.US).format(new Date())).apply();runOnUiThread(()->out.setText("Apps checked: "+r.checked+"\nRisk indicators: "+r.risks+"\n\n"+r.details+"\n\nLocal indicators are not a malware verdict.\n\n"+SecurityEngine.appReport(this)));}).start());nav(p,"home");mount(p);}
     void link(){LinearLayout p=page();headerBack(p,"Link Guard","Local phishing-risk analysis");LinearLayout c=panel(p,Color.WHITE);title(c,"Analyze a URL","Checks HTTPS, host format and common suspicious patterns.");EditText in=new EditText(this);in.setHint("https://example.com/login");in.setTextColor(TEXT);in.setHintTextColor(MUTED);in.setSingleLine(true);in.setBackground(bg(Color.rgb(246,249,253),18,Color.rgb(215,225,238)));c.addView(in,new LinearLayout.LayoutParams(-1,dp(52)));Button b=primary("Analyze Link");c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));TextView out=txt("Results appear here.",10,TEXT,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(170)));b.setOnClickListener(v->out.setText(SecurityEngine.analyzeUrl(in.getText().toString())));nav(p,"home");mount(p);}
