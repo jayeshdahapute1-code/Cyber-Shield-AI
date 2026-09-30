@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
             LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
             for(int j=0;j<2;j++){
                 String[] z=m[i+j];int ac=color(z[4]);LinearLayout c=panel(row,Color.WHITE);c.setPadding(dp(12),dp(11),dp(12),dp(10));
-                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(145),1);lp.setMargins(j==0?0:dp(5),dp(3),j==1?0:dp(5),dp(3));row.removeView(c);row.addView(c,lp);
+                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(151),1);lp.setMargins(j==0?0:dp(5),dp(3),j==1?0:dp(5),dp(3));row.removeView(c);row.addView(c,lp);
                 TextView ic=txt(z[0],27,ac,true);ic.setGravity(Gravity.CENTER);ic.setBackground(bg(Color.rgb(241,247,255),18,0));c.addView(ic,new LinearLayout.LayoutParams(dp(54),dp(54)));
                 c.addView(txt(z[1],14,NAVY,true),new LinearLayout.LayoutParams(-1,dp(25)));
                 c.addView(txt(z[2],9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(34)));
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
                 bottom.addView(txt("✓  "+(z[3].equals("apps")?"Last scan: Just now":z[3].equals("wifi")?"Network safe":"Protection ready"),9,GREEN,true),new LinearLayout.LayoutParams(0,dp(30),1));
                 Button open=btn("Open",ac);open.setTextSize(10);open.setBackground(bg(Color.rgb(239,246,255),22,0));bottom.addView(open,new LinearLayout.LayoutParams(dp(60),dp(30)));c.addView(bottom);
                 c.setOnClickListener(v->module(z[3]));open.setOnClickListener(v->module(z[3]));
-            } p.addView(row,new LinearLayout.LayoutParams(-1,dp(153)));
+            } p.addView(row,new LinearLayout.LayoutParams(-1,dp(159)));
         }
         LinearLayout ai=panel(p,Color.rgb(239,233,255));LinearLayout ar=new LinearLayout(this);ar.setGravity(Gravity.CENTER_VERTICAL);
         TextView bot=txt("✦",36,PURPLE,true);bot.setGravity(Gravity.CENTER);ar.addView(bot,new LinearLayout.LayoutParams(dp(60),dp(125)));
