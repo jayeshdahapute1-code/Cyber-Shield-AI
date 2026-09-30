@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
     }
     void header(LinearLayout p){
         LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);
-        TextView shield=txt("◆",30,BLUE,true);shield.setGravity(Gravity.CENTER);h.addView(shield,new LinearLayout.LayoutParams(dp(48),dp(54)));
+        ImageView shield=new ImageView(this);shield.setImageResource(R.drawable.cybershield_logo);shield.setScaleType(ImageView.ScaleType.CENTER_INSIDE);h.addView(shield,new LinearLayout.LayoutParams(dp(48),dp(54)));
         LinearLayout names=new LinearLayout(this);names.setOrientation(LinearLayout.VERTICAL);
         LinearLayout brand=new LinearLayout(this);
         brand.addView(txt("CyberShield",21,NAVY,true),new LinearLayout.LayoutParams(-2,dp(31)));
