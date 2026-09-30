@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
     }
     LinearLayout page(){
         LinearLayout p=new LinearLayout(this); p.setOrientation(LinearLayout.VERTICAL);
-        p.setPadding(dp(10),dp(20),dp(10),dp(10)); p.setBackgroundColor(BG); return p;
+        p.setPadding(dp(8),dp(14),dp(8),dp(8)); p.setBackgroundColor(BG); return p;
     }
     void mount(LinearLayout p){ScrollView s=new ScrollView(this);s.setFillViewport(true);s.setBackgroundColor(BG);s.addView(p);setContentView(s);}
     void space(LinearLayout p,int h){p.addView(new Space(this),new LinearLayout.LayoutParams(1,dp(h)));}
@@ -67,17 +67,17 @@ public class MainActivity extends Activity {
     }
     void header(LinearLayout p){
         LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);
-        ImageView shield=new ImageView(this);shield.setImageResource(R.drawable.cybershield_logo);shield.setScaleType(ImageView.ScaleType.CENTER_INSIDE);h.addView(shield,new LinearLayout.LayoutParams(dp(48),dp(54)));
+        ImageView shield=new ImageView(this);shield.setImageResource(R.drawable.cybershield_logo);shield.setScaleType(ImageView.ScaleType.CENTER_INSIDE);h.addView(shield,new LinearLayout.LayoutParams(dp(42),dp(46)));
         LinearLayout names=new LinearLayout(this);names.setOrientation(LinearLayout.VERTICAL);
         LinearLayout brand=new LinearLayout(this);
         brand.addView(txt("CyberShield",21,NAVY,true),new LinearLayout.LayoutParams(-2,dp(31)));
         brand.addView(txt(" AI",21,BLUE,true),new LinearLayout.LayoutParams(-2,dp(31)));
         names.addView(brand,new LinearLayout.LayoutParams(-1,dp(31)));
         names.addView(txt("Smart Protection for a Safer Digital Life",9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(22)));
-        h.addView(names,new LinearLayout.LayoutParams(0,dp(54),1));
+        h.addView(names,new LinearLayout.LayoutParams(0,dp(46),1));
         TextView bell=txt("●",12,RED,true);bell.setGravity(Gravity.CENTER);h.addView(bell,new LinearLayout.LayoutParams(dp(30),dp(42)));
         TextView set=txt("⚙",23,NAVY,false);set.setGravity(Gravity.CENTER);set.setOnClickListener(v->settings());h.addView(set,new LinearLayout.LayoutParams(dp(38),dp(42)));
-        p.addView(h,new LinearLayout.LayoutParams(-1,dp(50)));
+        p.addView(h,new LinearLayout.LayoutParams(-1,dp(44)));
     }
     void nav(LinearLayout p,String active){
         space(p,8); LinearLayout n=new LinearLayout(this); n.setPadding(dp(5),dp(5),dp(5),dp(5)); n.setGravity(Gravity.CENTER);
@@ -86,23 +86,23 @@ public class MainActivity extends Activity {
         for(String[] x:a){
             Button b=btn(x[0]+"\n"+x[1],active.equals(x[2])?BLUE:MUTED);
             b.setTextSize(13); b.setGravity(Gravity.CENTER); b.setBackground(active.equals(x[2])?bg(Color.rgb(239,246,255),20,0):bg(Color.TRANSPARENT,20,0));
-            n.addView(b,new LinearLayout.LayoutParams(0,dp(56),1));
+            n.addView(b,new LinearLayout.LayoutParams(0,dp(50),1));
             b.setOnClickListener(v->{if(x[2].equals("home"))home();else if(x[2].equals("reports"))reports();else if(x[2].equals("ai"))ai();else threats();});
-        } p.addView(n,new LinearLayout.LayoutParams(-1,dp(64)));
+        } p.addView(n,new LinearLayout.LayoutParams(-1,dp(58)));
     }
     void home(){
         LinearLayout p=page(); header(p);
-        LinearLayout hero=panel(p,Color.rgb(232,248,255)); hero.setPadding(dp(12),dp(11),dp(12),dp(11));
+        LinearLayout hero=panel(p,Color.rgb(232,248,255)); hero.setPadding(dp(10),dp(8),dp(10),dp(8));
         LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
         TextView ring=txt("✓\n98%\nSecure",20,NAVY,true);ring.setGravity(Gravity.CENTER);ring.setBackground(bg(Color.WHITE,90,BLUE));
-        top.addView(ring,new LinearLayout.LayoutParams(dp(98),dp(98)));
+        top.addView(ring,new LinearLayout.LayoutParams(dp(88),dp(88)));
         LinearLayout info=new LinearLayout(this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(16),0,0,0);
         info.addView(txt("✓  Your Device is Protected",15,NAVY,true),new LinearLayout.LayoutParams(-1,dp(23)));
         int checked=prefs.getInt("checked",0),risk=prefs.getInt("risk",0);
         info.addView(txt(checked+" apps scanned  •  "+risk+" risk indicators",10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(23)));
         info.addView(txt(SecurityEngine.networkStatus(this),10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(30)));
         Button audit=primary("▶  Run Full Security Audit");info.addView(audit,new LinearLayout.LayoutParams(-1,dp(38)));audit.setOnClickListener(v->audit());
-        top.addView(info,new LinearLayout.LayoutParams(0,dp(120),1));hero.addView(top,new LinearLayout.LayoutParams(-1,dp(120)));
+        top.addView(info,new LinearLayout.LayoutParams(0,dp(102),1));hero.addView(top,new LinearLayout.LayoutParams(-1,dp(102)));
         space(p,8);LinearLayout sh=new LinearLayout(this);sh.setGravity(Gravity.CENTER_VERTICAL);
         sh.addView(txt("Security Modules",21,NAVY,true),new LinearLayout.LayoutParams(0,dp(40),1));
         TextView all=txt("All Modules  ›",13,BLUE,true);sh.addView(all,new LinearLayout.LayoutParams(dp(100),dp(40)));p.addView(sh);
@@ -110,16 +110,16 @@ public class MainActivity extends Activity {
         for(int i=0;i<m.length;i+=2){
             LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
             for(int j=0;j<2;j++){
-                String[] z=m[i+j];int ac=color(z[4]);LinearLayout c=panel(row,Color.WHITE);c.setPadding(dp(12),dp(11),dp(12),dp(10));
-                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(145),1);lp.setMargins(j==0?0:dp(5),dp(3),j==1?0:dp(5),dp(3));row.removeView(c);row.addView(c,lp);
-                TextView ic=txt(z[0],27,ac,true);ic.setGravity(Gravity.CENTER);ic.setBackground(bg(Color.rgb(241,247,255),18,0));c.addView(ic,new LinearLayout.LayoutParams(dp(56),dp(56)));
+                String[] z=m[i+j];int ac=color(z[4]);LinearLayout c=panel(row,Color.WHITE);c.setPadding(dp(10),dp(8),dp(10),dp(8));
+                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(128),1);lp.setMargins(j==0?0:dp(5),dp(3),j==1?0:dp(5),dp(3));row.removeView(c);row.addView(c,lp);
+                TextView ic=txt(z[0],27,ac,true);ic.setGravity(Gravity.CENTER);ic.setBackground(bg(Color.rgb(241,247,255),18,0));c.addView(ic,new LinearLayout.LayoutParams(dp(48),dp(48)));
                 c.addView(txt(z[1],14,NAVY,true),new LinearLayout.LayoutParams(-1,dp(23)));
                 c.addView(txt(z[2],9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(24)));
                 LinearLayout bottom=new LinearLayout(this);bottom.setGravity(Gravity.CENTER_VERTICAL);
                 bottom.addView(txt("✓  "+(z[3].equals("apps")?"Last scan: Just now":z[3].equals("wifi")?"Network safe":"Protection ready"),9,GREEN,true),new LinearLayout.LayoutParams(0,dp(26),1));
                 Button open=btn("Open",ac);open.setTextSize(10);open.setBackground(bg(Color.rgb(239,246,255),22,0));bottom.addView(open,new LinearLayout.LayoutParams(dp(58),dp(27)));c.addView(bottom);
                 c.setOnClickListener(v->module(z[3]));open.setOnClickListener(v->module(z[3]));
-            } p.addView(row,new LinearLayout.LayoutParams(-1,dp(153)));
+            } p.addView(row,new LinearLayout.LayoutParams(-1,dp(136)));
         }
         LinearLayout ai=panel(p,Color.rgb(239,233,255));LinearLayout ar=new LinearLayout(this);ar.setGravity(Gravity.CENTER_VERTICAL);
         TextView bot=txt("✦",36,PURPLE,true);bot.setGravity(Gravity.CENTER);ar.addView(bot,new LinearLayout.LayoutParams(dp(52),dp(105)));
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
         Button ask=btn("Ask anything about your security...   ›",PURPLE);ask.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);ask.setBackground(bg(Color.WHITE,25,Color.rgb(196,177,255)));at.addView(ask,new LinearLayout.LayoutParams(-1,dp(38)));ar.addView(at,new LinearLayout.LayoutParams(0,dp(105),1));ai.addView(ar);ask.setOnClickListener(v->ai());
         LinearLayout status=panel(p,Color.WHITE);status.setOrientation(LinearLayout.HORIZONTAL);
         String[] ss={"✓\nReal-time\nProtection","☎\nCall Guard","▤\nMessage Guard","⌁\nNetwork Safe"};
-        for(String s:ss){TextView t=txt(s,12,s.startsWith("✓")?GREEN:NAVY,true);t.setGravity(Gravity.CENTER);t.setLineSpacing(1.05f,1.0f);status.addView(t,new LinearLayout.LayoutParams(0,dp(56),1));}
+        for(String s:ss){TextView t=txt(s,12,s.startsWith("✓")?GREEN:NAVY,true);t.setGravity(Gravity.CENTER);t.setLineSpacing(1.05f,1.0f);status.addView(t,new LinearLayout.LayoutParams(0,dp(50),1));}
         nav(p,"home");mount(p);
     }
     int color(String s){if(s.equals("green"))return GREEN;if(s.equals("purple"))return PURPLE;if(s.equals("pink"))return PINK;if(s.equals("red"))return RED;if(s.equals("orange"))return ORANGE;if(s.equals("gray"))return Color.rgb(92,110,133);return CYAN;}
