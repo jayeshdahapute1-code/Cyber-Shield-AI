@@ -1,1 +1,4 @@
-<resources><color name="cs_bg">#050807</color></resources>
+<resources>
+    <color name="cs_bg">#050807</color>
+    <color name="cybershield_icon_background">#0F2042</color>
+</resources>
