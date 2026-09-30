@@ -1,7 +1,6 @@
 package com.cybershield.ai;
 
 import android.app.*;
-import android.app.role.RoleManager;
 import android.content.*;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -16,127 +15,145 @@ import java.util.*;
 
 public class MainActivity extends Activity {
     static final int APK=42, CALL_ROLE=43;
-    static final int BG=Color.rgb(5,11,20), PANEL=Color.rgb(12,25,39), CYAN=Color.rgb(52,211,255);
-    static final int GREEN=Color.rgb(48,245,183), PURPLE=Color.rgb(157,123,255), RED=Color.rgb(255,75,108);
-    static final int YELLOW=Color.rgb(255,201,77), WHITE=Color.rgb(241,247,255), MUTED=Color.rgb(143,163,184);
-    SharedPreferences prefs; LinearLayout root; TextView apkOut;
+    static final int BG=Color.rgb(248,251,255), CARD=Color.WHITE, NAVY=Color.rgb(15,32,66);
+    static final int BLUE=Color.rgb(28,105,245), CYAN=Color.rgb(22,174,232), GREEN=Color.rgb(28,195,102);
+    static final int PURPLE=Color.rgb(117,73,224), PINK=Color.rgb(235,45,103), ORANGE=Color.rgb(245,166,22);
+    static final int RED=Color.rgb(232,50,74), TEXT=Color.rgb(15,32,66), MUTED=Color.rgb(91,111,139);
+    SharedPreferences prefs; TextView apkOut;
 
     @Override public void onCreate(Bundle b){
         super.onCreate(b);
-        getWindow().setStatusBarColor(BG); getWindow().setNavigationBarColor(BG);
+        getWindow().setStatusBarColor(BG); getWindow().setNavigationBarColor(Color.WHITE);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         prefs=getSharedPreferences("security",MODE_PRIVATE); home();
     }
     int dp(int n){return Math.round(n*getResources().getDisplayMetrics().density);}
-    GradientDrawable box(int color,int stroke){
-        GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(dp(18));
+    GradientDrawable bg(int color,float radius,int stroke){
+        GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(dp((int)radius));
         if(stroke!=0)d.setStroke(dp(1),stroke); return d;
+    }
+    GradientDrawable gradient(int c1,int c2,float radius){
+        GradientDrawable d=new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{c1,c2});
+        d.setCornerRadius(dp((int)radius)); return d;
     }
     TextView txt(String s,float size,int color,boolean bold){
         TextView t=new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(color);
-        t.setGravity(Gravity.CENTER_VERTICAL); t.setTypeface(Typeface.create("sans",bold?Typeface.BOLD:Typeface.NORMAL)); return t;
+        t.setGravity(Gravity.CENTER_VERTICAL); t.setTypeface(Typeface.create("sans",bold?Typeface.BOLD:Typeface.NORMAL));
+        return t;
     }
     Button btn(String s,int color){
-        Button b=new Button(this); b.setText(s); b.setTextColor(color); b.setTextSize(12); b.setAllCaps(false);
-        b.setBackground(box(Color.rgb(8,28,40),color)); return b;
+        Button b=new Button(this); b.setText(s); b.setTextColor(color==Color.WHITE?TEXT:color); b.setTextSize(12);
+        b.setAllCaps(false); b.setTypeface(Typeface.DEFAULT,Typeface.BOLD); b.setPadding(dp(8),0,dp(8),0);
+        b.setBackground(bg(Color.WHITE,28,0)); return b;
+    }
+    Button primary(String s){
+        Button b=new Button(this); b.setText(s); b.setTextColor(Color.WHITE); b.setTextSize(13); b.setAllCaps(false);
+        b.setTypeface(Typeface.DEFAULT,Typeface.BOLD); b.setBackground(gradient(BLUE,CYAN,28)); return b;
     }
     LinearLayout page(){
-        LinearLayout p=new LinearLayout(this); p.setOrientation(LinearLayout.VERTICAL); p.setPadding(dp(14),dp(14),dp(14),dp(18)); p.setBackgroundColor(BG); return p;
+        LinearLayout p=new LinearLayout(this); p.setOrientation(LinearLayout.VERTICAL);
+        p.setPadding(dp(16),dp(10),dp(16),dp(18)); p.setBackgroundColor(BG); return p;
     }
-    void mount(LinearLayout p){ScrollView s=new ScrollView(this);s.setFillViewport(true);s.addView(p);setContentView(s);root=p;}
+    void mount(LinearLayout p){ScrollView s=new ScrollView(this);s.setFillViewport(true);s.setBackgroundColor(BG);s.addView(p);setContentView(s);}
     void space(LinearLayout p,int h){p.addView(new Space(this),new LinearLayout.LayoutParams(1,dp(h)));}
-    LinearLayout card(LinearLayout p,int accent){
-        LinearLayout c=new LinearLayout(this);c.setOrientation(LinearLayout.VERTICAL);c.setPadding(dp(15),dp(13),dp(15),dp(13));c.setBackground(box(PANEL,accent));
-        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,dp(7),0,0);p.addView(c,lp);return c;
+    LinearLayout panel(LinearLayout parent,int color){
+        LinearLayout c=new LinearLayout(this); c.setOrientation(LinearLayout.VERTICAL);
+        c.setPadding(dp(16),dp(14),dp(16),dp(14)); c.setBackground(bg(color,22,0));
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,dp(7),0,dp(7));parent.addView(c,lp);return c;
     }
-    void cardText(LinearLayout c,String a,String b){
-        c.addView(txt(a,14,WHITE,true),new LinearLayout.LayoutParams(-1,dp(28)));
-        c.addView(txt(b,9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(35)));
+    void title(LinearLayout c,String a,String b){
+        c.addView(txt(a,15,TEXT,true),new LinearLayout.LayoutParams(-1,dp(27)));
+        c.addView(txt(b,10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(34)));
     }
-    void header(LinearLayout p,String title,String sub){
+    void header(LinearLayout p){
         LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);
-        TextView back=txt("‹",32,WHITE,false);back.setGravity(Gravity.CENTER);h.addView(back,new LinearLayout.LayoutParams(dp(42),dp(55)));
-        LinearLayout labels=new LinearLayout(this);labels.setOrientation(LinearLayout.VERTICAL);
-        labels.addView(txt(title,17,WHITE,true),new LinearLayout.LayoutParams(-1,dp(28)));
-        labels.addView(txt(sub,9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(22)));
-        h.addView(labels,new LinearLayout.LayoutParams(0,dp(55),1));
-        TextView pro=txt("PRO",9,YELLOW,true);pro.setGravity(Gravity.CENTER);pro.setBackground(box(Color.rgb(25,39,57),0));h.addView(pro,new LinearLayout.LayoutParams(dp(58),dp(30)));
-        back.setOnClickListener(v->home());p.addView(h,new LinearLayout.LayoutParams(-1,dp(62)));
+        TextView shield=txt("◆",28,BLUE,true);shield.setGravity(Gravity.CENTER);h.addView(shield,new LinearLayout.LayoutParams(dp(46),dp(54)));
+        LinearLayout names=new LinearLayout(this);names.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout brand=new LinearLayout(this);
+        brand.addView(txt("CyberShield",23,NAVY,true),new LinearLayout.LayoutParams(-2,dp(31)));
+        brand.addView(txt(" AI",23,BLUE,true),new LinearLayout.LayoutParams(-2,dp(31)));
+        names.addView(brand,new LinearLayout.LayoutParams(-1,dp(31)));
+        names.addView(txt("Smart Protection for a Safer Digital Life",9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(22)));
+        h.addView(names,new LinearLayout.LayoutParams(0,dp(54),1));
+        TextView bell=txt("●",12,RED,true);bell.setGravity(Gravity.CENTER);h.addView(bell,new LinearLayout.LayoutParams(dp(30),dp(42)));
+        TextView set=txt("⚙",23,NAVY,false);set.setGravity(Gravity.CENTER);set.setOnClickListener(v->settings());h.addView(set,new LinearLayout.LayoutParams(dp(38),dp(42)));
+        p.addView(h,new LinearLayout.LayoutParams(-1,dp(62)));
     }
     void nav(LinearLayout p,String active){
-        space(p,8);LinearLayout n=new LinearLayout(this);n.setPadding(dp(3),dp(3),dp(3),dp(3));n.setBackground(box(Color.rgb(8,18,29),Color.rgb(28,54,76)));
-        String[][] a={{"HOME","home"},{"THREATS","threats"},{"REPORTS","reports"},{"AI","ai"}};
-        for(String[] x:a){Button b=btn(x[0],active.equals(x[1])?GREEN:MUTED);n.addView(b,new LinearLayout.LayoutParams(0,dp(48),1));
-            b.setOnClickListener(v->{if(x[1].equals("home"))home();else if(x[1].equals("reports"))reports();else if(x[1].equals("ai"))ai();else threats();});}
-        p.addView(n);
+        space(p,8); LinearLayout n=new LinearLayout(this); n.setPadding(dp(5),dp(5),dp(5),dp(5)); n.setGravity(Gravity.CENTER);
+        n.setBackground(bg(Color.WHITE,24,Color.rgb(218,227,240)));
+        String[][] a={{"⌂","Home","home"},{"◆","Threats","threats"},{"▥","Reports","reports"},{"●","AI Assistant","ai"}};
+        for(String[] x:a){
+            Button b=btn(x[0]+"\n"+x[1],active.equals(x[2])?BLUE:MUTED);
+            b.setTextSize(10); b.setGravity(Gravity.CENTER); b.setBackground(active.equals(x[2])?bg(Color.rgb(239,246,255),20,0):bg(Color.TRANSPARENT,20,0));
+            n.addView(b,new LinearLayout.LayoutParams(0,dp(58),1));
+            b.setOnClickListener(v->{if(x[2].equals("home"))home();else if(x[2].equals("reports"))reports();else if(x[2].equals("ai"))ai();else threats();});
+        } p.addView(n,new LinearLayout.LayoutParams(-1,dp(68)));
     }
     void home(){
-        LinearLayout p=page();LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);
-        h.addView(txt("CyberShield",24,WHITE,true),new LinearLayout.LayoutParams(0,dp(48),1));h.addView(txt("AI",24,CYAN,true),new LinearLayout.LayoutParams(dp(38),dp(48)));
-        TextView pro=txt("PRO",9,YELLOW,true);pro.setGravity(Gravity.CENTER);pro.setBackground(box(Color.rgb(25,39,57),0));h.addView(pro,new LinearLayout.LayoutParams(dp(58),dp(30)));p.addView(h);
-        p.addView(txt("Smart protection for your device",9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(22)));
-        LinearLayout c=card(p,GREEN);cardText(c,"●  PROTECTION ACTIVE","Native Android security modules • transparent local checks");
+        LinearLayout p=page(); header(p);
+        LinearLayout hero=panel(p,Color.rgb(232,248,255)); hero.setPadding(dp(14),dp(14),dp(14),dp(14));
+        LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
+        TextView ring=txt("✓\n98%\nSecure",20,NAVY,true);ring.setGravity(Gravity.CENTER);ring.setBackground(bg(Color.WHITE,90,BLUE));
+        top.addView(ring,new LinearLayout.LayoutParams(dp(120),dp(120)));
+        LinearLayout info=new LinearLayout(this);info.setOrientation(LinearLayout.VERTICAL);info.setPadding(dp(16),0,0,0);
+        info.addView(txt("✓  Your Device is Protected",17,NAVY,true),new LinearLayout.LayoutParams(-1,dp(42)));
         int checked=prefs.getInt("checked",0),risk=prefs.getInt("risk",0);
-        c.addView(txt("98%  SECURITY POSTURE\n"+checked+" apps scanned     "+risk+" risk indicators\n"+SecurityEngine.networkStatus(this),10,WHITE,true),new LinearLayout.LayoutParams(-1,dp(78)));
-        Button audit=btn("RUN FULL SECURITY AUDIT",GREEN);c.addView(audit,new LinearLayout.LayoutParams(-1,dp(48)));audit.setOnClickListener(v->audit());
-        space(p,8);p.addView(txt("SECURITY MODULES",11,WHITE,true),new LinearLayout.LayoutParams(-1,dp(28)));
-        String[][] m={{"▣ App Security","Installed-app audit","apps","cyan"},{"⌁ Link Guard","Phishing heuristics","link","purple"},{"⚠ APK Guard","Third-party APK scan","apk","red"},{"▤ Message Guard","Notification protection","messages","green"},{"✉ Email Scanner","Provider connection","email","yellow"},{"☎ Call Guard","Android screening role","calls","red"},{"⌁ Wi-Fi Security","Live connection state","wifi","cyan"},{"⚙ Settings","Privacy controls","settings","white"}};
+        info.addView(txt(checked+" apps scanned  •  "+risk+" risk indicators",10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(30)));
+        info.addView(txt(SecurityEngine.networkStatus(this),10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(35)));
+        Button audit=primary("▶  Run Full Security Audit");info.addView(audit,new LinearLayout.LayoutParams(-1,dp(48)));audit.setOnClickListener(v->audit());
+        top.addView(info,new LinearLayout.LayoutParams(0,dp(120),1));hero.addView(top);
+        space(p,8);LinearLayout sh=new LinearLayout(this);sh.setGravity(Gravity.CENTER_VERTICAL);
+        sh.addView(txt("Security Modules",21,NAVY,true),new LinearLayout.LayoutParams(0,dp(40),1));
+        TextView all=txt("All Modules  ›",13,BLUE,true);sh.addView(all,new LinearLayout.LayoutParams(dp(100),dp(40)));p.addView(sh);
+        String[][] m={{"▦","App Security","Scan installed apps","apps","cyan"},{"↗","Link Guard","Detect harmful & phishing links","link","green"},{"▣","APK Guard","Scan third-party APK files","apk","pink"},{"▤","Message Guard","Detect scam messages & links","messages","orange"},{"✉","Email Scanner","Check suspicious emails & attachments","email","purple"},{"☎","Call Guard","Block spam & fraud calls","calls","red"},{"⌁","Wi-Fi Security","Check network safety & connection","wifi","cyan"},{"⚙","Settings","Privacy, permissions & app controls","settings","gray"}};
         for(int i=0;i<m.length;i+=2){
             LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
-            for(int j=0;j<2&&i+j<m.length;j++){String[] z=m[i+j];int ac=color(z[3]);LinearLayout q=card(row,ac);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(110),1);lp.setMargins(j==0?0:dp(5),dp(4),j==1?0:dp(5),0);row.removeView(q);row.addView(q,lp);cardText(q,z[0],z[1]);Button b=btn("OPEN",ac);q.addView(b,new LinearLayout.LayoutParams(-1,dp(38)));b.setOnClickListener(v->module(z[2]));}
-            p.addView(row,new LinearLayout.LayoutParams(-1,dp(118)));
+            for(int j=0;j<2;j++){
+                String[] z=m[i+j];int ac=color(z[4]);LinearLayout c=panel(row,Color.WHITE);c.setPadding(dp(12),dp(11),dp(12),dp(10));
+                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(150),1);lp.setMargins(j==0?0:dp(5),dp(3),j==1?0:dp(5),dp(3));row.removeView(c);row.addView(c,lp);
+                TextView ic=txt(z[0],20,ac,true);ic.setGravity(Gravity.CENTER);ic.setBackground(bg(Color.rgb(241,247,255),16,0));c.addView(ic,new LinearLayout.LayoutParams(dp(48),dp(48)));
+                c.addView(txt(z[1],14,NAVY,true),new LinearLayout.LayoutParams(-1,dp(28)));
+                c.addView(txt(z[2],9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(34)));
+                LinearLayout bottom=new LinearLayout(this);bottom.setGravity(Gravity.CENTER_VERTICAL);
+                bottom.addView(txt("✓  "+(z[3].equals("apps")?"Last scan: Just now":z[3].equals("wifi")?"Network safe":"Protection ready"),9,GREEN,true),new LinearLayout.LayoutParams(0,dp(34),1));
+                Button open=btn("Open",ac);open.setTextSize(10);open.setBackground(bg(Color.rgb(239,246,255),22,0));bottom.addView(open,new LinearLayout.LayoutParams(dp(64),dp(34)));c.addView(bottom);
+                c.setOnClickListener(v->module(z[3]));open.setOnClickListener(v->module(z[3]));
+            } p.addView(row,new LinearLayout.LayoutParams(-1,dp(162)));
         }
-        LinearLayout a=card(p,PURPLE);cardText(a,"AI SECURITY ASSISTANT","Ask about apps, links, APKs, calls or messages");Button ab=btn("OPEN AI ASSISTANT",PURPLE);a.addView(ab,new LinearLayout.LayoutParams(-1,dp(46)));ab.setOnClickListener(v->ai());
+        LinearLayout ai=panel(p,Color.rgb(239,233,255));LinearLayout ar=new LinearLayout(this);ar.setGravity(Gravity.CENTER_VERTICAL);
+        TextView bot=txt("✦",38,PURPLE,true);bot.setGravity(Gravity.CENTER);ar.addView(bot,new LinearLayout.LayoutParams(dp(72),dp(82)));
+        LinearLayout at=new LinearLayout(this);at.setOrientation(LinearLayout.VERTICAL);at.addView(txt("AI Security Assistant",18,NAVY,true),new LinearLayout.LayoutParams(-1,dp(30)));at.addView(txt("Ask about apps, links, APKs, calls or messages",10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(32)));
+        Button ask=btn("Ask anything about your security...   ›",PURPLE);ask.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);ask.setBackground(bg(Color.WHITE,25,Color.rgb(196,177,255)));at.addView(ask,new LinearLayout.LayoutParams(-1,dp(45)));ar.addView(at,new LinearLayout.LayoutParams(0,dp(82),1));ai.addView(ar);ask.setOnClickListener(v->ai());
+        LinearLayout status=panel(p,Color.WHITE);status.setOrientation(LinearLayout.HORIZONTAL);
+        String[] ss={"✓\nReal-time\nProtection","☎\nCall Guard","▤\nMessage Guard","⌁\nNetwork Safe"};
+        for(String s:ss){TextView t=txt(s,9,s.startsWith("✓")?GREEN:NAVY,true);t.setGravity(Gravity.CENTER);status.addView(t,new LinearLayout.LayoutParams(0,dp(52),1));}
         nav(p,"home");mount(p);
     }
-    int color(String s){if(s.equals("green"))return GREEN;if(s.equals("purple"))return PURPLE;if(s.equals("red"))return RED;if(s.equals("yellow"))return YELLOW;if(s.equals("white"))return WHITE;return CYAN;}
+    int color(String s){if(s.equals("green"))return GREEN;if(s.equals("purple"))return PURPLE;if(s.equals("pink"))return PINK;if(s.equals("red"))return RED;if(s.equals("orange"))return ORANGE;if(s.equals("gray"))return Color.rgb(92,110,133);return CYAN;}
     void module(String s){switch(s){case"apps":apps();break;case"link":link();break;case"apk":apk();break;case"messages":messages();break;case"email":email();break;case"calls":calls();break;case"wifi":wifi();break;default:settings();}}
     void audit(){Toast.makeText(this,"Running local security audit…",Toast.LENGTH_SHORT).show();new Thread(()->{SecurityEngine.ScanResult r=SecurityEngine.scanApps(this);prefs.edit().putInt("checked",r.checked).putInt("risk",r.risks).putString("time",new SimpleDateFormat("dd MMM yyyy, HH:mm",Locale.US).format(new Date())).apply();runOnUiThread(this::reports);}).start();}
-    void apps(){
-        LinearLayout p=page();header(p,"App Security","Real installed-app audit");LinearLayout c=card(p,CYAN);cardText(c,"INSTALLED APP SCANNER","Real package metadata, permissions and installed-app inventory.");
-        Button b=btn("SCAN ALL INSTALLED APPS",CYAN);c.addView(b,new LinearLayout.LayoutParams(-1,dp(48)));TextView out=txt("No audit run yet.",10,WHITE,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(280)));
-        b.setOnClickListener(v->new Thread(()->{SecurityEngine.ScanResult r=SecurityEngine.scanApps(this);prefs.edit().putInt("checked",r.checked).putInt("risk",r.risks).putString("time",new SimpleDateFormat("dd MMM yyyy, HH:mm",Locale.US).format(new Date())).apply();runOnUiThread(()->out.setText("Apps checked: "+r.checked+"\nRisk indicators: "+r.risks+"\n\n"+r.details+"\n\nLocal indicators are not a malware verdict.\n\n"+SecurityEngine.appReport(this)));}).start());
-        nav(p,"home");mount(p);
+    void simplePage(String title,String sub,String heading,String body,int ac,String button,View.OnClickListener action){
+        LinearLayout p=page();headerBack(p,title,sub);LinearLayout c=panel(p,Color.WHITE);title(c,heading,body);Button b=primary(button);c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));b.setOnClickListener(action);nav(p,"home");mount(p);
     }
-    void link(){
-        LinearLayout p=page();header(p,"Link Guard","Local phishing-risk analysis");LinearLayout c=card(p,PURPLE);cardText(c,"ANALYZE A URL","Checks HTTPS, host format and common suspicious patterns.");
-        EditText in=new EditText(this);in.setHint("https://example.com/login");in.setHintTextColor(MUTED);in.setTextColor(WHITE);in.setSingleLine(true);c.addView(in,new LinearLayout.LayoutParams(-1,dp(52)));
-        Button b=btn("ANALYZE LINK",PURPLE);c.addView(b,new LinearLayout.LayoutParams(-1,dp(48)));TextView out=txt("Results appear here.",10,WHITE,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(160)));b.setOnClickListener(v->out.setText(SecurityEngine.analyzeUrl(in.getText().toString())));
-        nav(p,"home");mount(p);
+    void headerBack(LinearLayout p,String title,String sub){
+        LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);TextView back=txt("‹",34,NAVY,false);back.setGravity(Gravity.CENTER);h.addView(back,new LinearLayout.LayoutParams(dp(42),dp(55)));
+        LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);l.addView(txt(title,19,NAVY,true),new LinearLayout.LayoutParams(-1,dp(30)));l.addView(txt(sub,10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(22)));h.addView(l,new LinearLayout.LayoutParams(0,dp(55),1));back.setOnClickListener(v->home());p.addView(h,new LinearLayout.LayoutParams(-1,dp(62)));
     }
-    void apk(){
-        LinearLayout p=page();header(p,"APK Guard","Third-party APK inspection");LinearLayout c=card(p,RED);cardText(c,"SELECT AN APK","Private-cache copy • SHA-256 • package metadata • permissions • certificate • archive indicators");
-        Button b=btn("SELECT & SCAN APK",RED);c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));apkOut=txt("No APK selected.",9,WHITE,false);c.addView(apkOut,new LinearLayout.LayoutParams(-1,dp(360)));
-        b.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("application/vnd.android.package-archive");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,APK);});nav(p,"home");mount(p);
-    }
-    void messages(){
-        LinearLayout p=page();header(p,"Message Guard","Notification-based protection");LinearLayout c=card(p,GREEN);cardText(c,"MESSAGE & NOTIFICATION CHECKS","With explicit notification access, the service can inspect notification text locally for common scam indicators.");
-        Button b=btn("ENABLE NOTIFICATION ACCESS",GREEN);c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));Button s=btn("REFRESH STATUS",CYAN);c.addView(s,new LinearLayout.LayoutParams(-1,dp(50)));TextView out=txt(notifyStatus(),10,WHITE,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(120)));
-        b.setOnClickListener(v->{try{startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));}catch(Exception e){startActivity(new Intent(Settings.ACTION_SETTINGS));}});s.setOnClickListener(v->out.setText(notifyStatus()));
-        nav(p,"home");mount(p);
-    }
+    void apps(){LinearLayout p=page();headerBack(p,"App Security","Installed-app audit");LinearLayout c=panel(p,Color.WHITE);title(c,"Installed App Scanner","Real package metadata, permissions and installed-app inventory.");Button b=primary("Scan All Installed Apps");c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));TextView out=txt("No audit run yet.",10,TEXT,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(300)));b.setOnClickListener(v->new Thread(()->{SecurityEngine.ScanResult r=SecurityEngine.scanApps(this);prefs.edit().putInt("checked",r.checked).putInt("risk",r.risks).putString("time",new SimpleDateFormat("dd MMM yyyy, HH:mm",Locale.US).format(new Date())).apply();runOnUiThread(()->out.setText("Apps checked: "+r.checked+"\nRisk indicators: "+r.risks+"\n\n"+r.details+"\n\nLocal indicators are not a malware verdict.\n\n"+SecurityEngine.appReport(this)));}).start());nav(p,"home");mount(p);}
+    void link(){LinearLayout p=page();headerBack(p,"Link Guard","Local phishing-risk analysis");LinearLayout c=panel(p,Color.WHITE);title(c,"Analyze a URL","Checks HTTPS, host format and common suspicious patterns.");EditText in=new EditText(this);in.setHint("https://example.com/login");in.setTextColor(TEXT);in.setHintTextColor(MUTED);in.setSingleLine(true);in.setBackground(bg(Color.rgb(246,249,253),18,Color.rgb(215,225,238)));c.addView(in,new LinearLayout.LayoutParams(-1,dp(52)));Button b=primary("Analyze Link");c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));TextView out=txt("Results appear here.",10,TEXT,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(170)));b.setOnClickListener(v->out.setText(SecurityEngine.analyzeUrl(in.getText().toString())));nav(p,"home");mount(p);}
+    void apk(){LinearLayout p=page();headerBack(p,"APK Guard","Third-party APK inspection");LinearLayout c=panel(p,Color.WHITE);title(c,"Select an APK","SHA-256 • package metadata • permissions • certificate • archive indicators");Button b=primary("Select & Scan APK");c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));apkOut=txt("No APK selected.",9,TEXT,false);c.addView(apkOut,new LinearLayout.LayoutParams(-1,dp(380)));b.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("application/vnd.android.package-archive");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,APK);});nav(p,"home");mount(p);}
+    void messages(){LinearLayout p=page();headerBack(p,"Message Guard","Notification-based protection");LinearLayout c=panel(p,Color.WHITE);title(c,"Message & Notification Checks","With explicit notification access, the service can inspect notification text locally for common scam indicators.");Button b=primary("Enable Notification Access");c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));Button s=btn("Refresh Status",CYAN);c.addView(s,new LinearLayout.LayoutParams(-1,dp(50)));TextView out=txt(notifyStatus(),10,TEXT,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(140)));b.setOnClickListener(v->CyberFeatures.openNotificationSettings(this));s.setOnClickListener(v->out.setText(notifyStatus()));nav(p,"home");mount(p);}
     String notifyStatus(){return CyberFeatures.notificationStatus(this);}
-    void email(){
-        LinearLayout p=page();header(p,"Email Scanner","Secure provider connection");LinearLayout c=card(p,YELLOW);cardText(c,"EMAIL SCANNING","Real mailbox scanning requires explicit provider authorization. This app will not show fake inbox results.");
-        Button b=btn("CONNECT EMAIL PROVIDER",YELLOW);c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));c.addView(txt("Next integration: Gmail/Microsoft OAuth plus server-side reputation checks.\n\nAPI secrets must never be embedded in the APK.",10,WHITE,false),new LinearLayout.LayoutParams(-1,dp(150)));b.setOnClickListener(v->Toast.makeText(this,"Email OAuth module is not connected yet.",Toast.LENGTH_LONG).show());nav(p,"home");mount(p);
-    }
-    void calls(){
-        LinearLayout p=page();header(p,"Call Guard","Real Android call-screening protection");LinearLayout c=card(p,RED);cardText(c,"CALL PROTECTION","Select CyberShield AI as the call-screening app. Numbers added below are rejected by Android before they ring.");
-        Button b=btn("SET UP CALL SCREENING",RED);c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));TextView out=txt("Checking role…",10,WHITE,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(65)));b.setOnClickListener(v->callRole());
-        EditText num=new EditText(this);num.setHint("+919876543210");num.setHintTextColor(MUTED);num.setTextColor(WHITE);num.setSingleLine(true);c.addView(num,new LinearLayout.LayoutParams(-1,dp(52)));
-        Button add=btn("ADD NUMBER TO BLOCK LIST",RED);c.addView(add,new LinearLayout.LayoutParams(-1,dp(48)));
-        TextView list=txt("Blocked numbers:\n"+prefs.getString("blocked_numbers","None"),10,WHITE,false);c.addView(list,new LinearLayout.LayoutParams(-1,dp(150)));
-        add.setOnClickListener(v->{String n=SecurityEngine.normalizeNumber(num.getText().toString());if(n.length()<5){Toast.makeText(this,"Enter a valid phone number.",Toast.LENGTH_SHORT).show();return;}String old=prefs.getString("blocked_numbers","");String value=old.equals("None")||old.isEmpty()?n:old+","+n;prefs.edit().putString("blocked_numbers",value).apply();list.setText("Blocked numbers:\n"+value.replace(",","\n"));num.setText("");Toast.makeText(this,"Number added.",Toast.LENGTH_SHORT).show();});
-        c.addView(txt("Calls blocked: "+prefs.getInt("blocked_calls",0),10,WHITE,false),new LinearLayout.LayoutParams(-1,dp(45)));
-        callStatus(out);nav(p,"home");mount(p);
-    }
-    void callStatus(TextView out){CyberFeatures.callStatus(this,out);}
-    void callRole(){CyberFeatures.callRole(this,CALL_ROLE);}
-    void wifi(){LinearLayout p=page();header(p,"Wi-Fi Security","Live Android connectivity state");LinearLayout c=card(p,CYAN);cardText(c,"CURRENT NETWORK",SecurityEngine.networkStatus(this));Button b=btn("REFRESH NETWORK STATUS",CYAN);c.addView(b,new LinearLayout.LayoutParams(-1,dp(48)));TextView o=txt("Network state is read from Android connectivity APIs.",10,WHITE,false);c.addView(o,new LinearLayout.LayoutParams(-1,dp(100)));b.setOnClickListener(v->o.setText(SecurityEngine.networkStatus(this)));nav(p,"home");mount(p);}
-    void settings(){LinearLayout p=page();header(p,"Settings","Privacy, permissions and Android controls");setting(p,"Android Security","Open system security controls",v->startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS)),CYAN);setting(p,"Notification Access","Control Message Guard",v->CyberFeatures.openNotificationSettings(this),GREEN);setting(p,"Unknown App Sources","Control APK installation permission",v->{try{Intent i=new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);i.setData(Uri.parse("package:"+getPackageName()));startActivity(i);}catch(Exception e){startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));}},RED);setting(p,"About CyberShield AI","Original working security modules • v1.5 • "+CyberFeatures.variantName()+"",v->new AlertDialog.Builder(this).setTitle("CyberShield AI").setMessage("Working Android security modules: app audit, APK inspection, link analysis, notification scanning, call screening and network status.\n\nSome capabilities require explicit Android roles or permissions.").setPositiveButton("OK",null).show(),PURPLE);nav(p,"home");mount(p);}
-    void setting(LinearLayout p,String a,String b,View.OnClickListener l,int ac){LinearLayout c=card(p,ac);cardText(c,a,b);Button x=btn("OPEN",ac);c.addView(x,new LinearLayout.LayoutParams(-1,dp(44)));x.setOnClickListener(l);}
-    void reports(){LinearLayout p=page();header(p,"Security Reports","Latest local audit");int a=prefs.getInt("checked",0),r=prefs.getInt("risk",0);LinearLayout c=card(p,r>0?RED:GREEN);cardText(c,"LATEST SECURITY AUDIT","Apps checked: "+a+"   •   Indicators: "+r+"\nLast audit: "+prefs.getString("time","Not scanned yet"));Button b=btn("RUN AUDIT AGAIN",GREEN);c.addView(b,new LinearLayout.LayoutParams(-1,dp(48)));b.setOnClickListener(v->audit());LinearLayout n=card(p,CYAN);cardText(n,"NETWORK",SecurityEngine.networkStatus(this));nav(p,"reports");mount(p);}
-    void threats(){LinearLayout p=page();header(p,"Threat Center","Observed indicators, not fake detections");int r=prefs.getInt("risk",0);LinearLayout c=card(p,r>0?RED:GREEN);cardText(c,r>0?"INDICATORS NEED REVIEW":"NO LOCAL APP INDICATORS",r+" package-name indicators from the latest audit.");c.addView(txt("CyberShield AI separates observed indicators from confirmed malware verdicts.\n\nUse APK Guard for file analysis and Link Guard for URLs.",10,WHITE,false),new LinearLayout.LayoutParams(-1,dp(160)));nav(p,"threats");mount(p);}
-    void ai(){LinearLayout p=page();header(p,"AI Assistant","Security guidance");LinearLayout c=card(p,PURPLE);cardText(c,"CYBERSHIELD AI","Transparent local security guidance. Cloud AI/reputation can be connected later.");EditText in=new EditText(this);in.setHint("Ask about an APK, link, message or call");in.setHintTextColor(MUTED);in.setTextColor(WHITE);c.addView(in,new LinearLayout.LayoutParams(-1,dp(58)));Button b=btn("ANALYZE QUESTION",PURPLE);c.addView(b,new LinearLayout.LayoutParams(-1,dp(48)));TextView o=txt("Answer appears here.",10,WHITE,false);c.addView(o,new LinearLayout.LayoutParams(-1,dp(180)));b.setOnClickListener(v->o.setText(answer(in.getText().toString())));nav(p,"ai");mount(p);}
+    void email(){simplePage("Email Scanner","Secure provider connection","Email Scanning","Real mailbox scanning requires explicit provider authorization. This app will not show fake inbox results.",ORANGE,"Connect Email Provider",v->Toast.makeText(this,"Email OAuth module is not connected yet.",Toast.LENGTH_LONG).show());}
+    void calls(){LinearLayout p=page();headerBack(p,"Call Guard","Real Android call-screening protection");LinearLayout c=panel(p,Color.WHITE);title(c,"Call Protection","Select CyberShield AI as the call-screening app. Numbers added below are rejected by Android before they ring.");Button b=primary("Set Up Call Screening");c.addView(b,new LinearLayout.LayoutParams(-1,dp(50)));TextView out=txt("Checking role…",10,TEXT,false);c.addView(out,new LinearLayout.LayoutParams(-1,dp(55)));b.setOnClickListener(v->callRole());EditText num=new EditText(this);num.setHint("+919876543210");num.setTextColor(TEXT);num.setHintTextColor(MUTED);num.setSingleLine(true);c.addView(num,new LinearLayout.LayoutParams(-1,dp(52)));Button add=btn("Add Number to Block List",RED);c.addView(add,new LinearLayout.LayoutParams(-1,dp(48)));TextView list=txt("Blocked numbers:\n"+prefs.getString("blocked_numbers","None"),10,TEXT,false);c.addView(list,new LinearLayout.LayoutParams(-1,dp(150)));add.setOnClickListener(v->{String n=SecurityEngine.normalizeNumber(num.getText().toString());if(n.length()<5){Toast.makeText(this,"Enter a valid phone number.",Toast.LENGTH_SHORT).show();return;}String old=prefs.getString("blocked_numbers","");String value=old.equals("None")||old.isEmpty()?n:old+","+n;prefs.edit().putString("blocked_numbers",value).apply();list.setText("Blocked numbers:\n"+value.replace(",","\n"));num.setText("");});c.addView(txt("Calls blocked: "+prefs.getInt("blocked_calls",0),10,TEXT,false),new LinearLayout.LayoutParams(-1,dp(45)));callStatus(out);nav(p,"home");mount(p);}
+    void callStatus(TextView out){CyberFeatures.callStatus(this,out);} void callRole(){CyberFeatures.callRole(this,CALL_ROLE);}
+    void wifi(){simplePage("Wi-Fi Security","Live Android connectivity state","Current Network",SecurityEngine.networkStatus(this),CYAN,"Refresh Network Status",v->Toast.makeText(this,SecurityEngine.networkStatus(this),Toast.LENGTH_SHORT).show());}
+    void settings(){LinearLayout p=page();headerBack(p,"Settings","Privacy, permissions and Android controls");setting(p,"Android Security","Open system security controls",v->startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS)),CYAN);setting(p,"Notification Access","Control Message Guard",v->CyberFeatures.openNotificationSettings(this),GREEN);setting(p,"Unknown App Sources","Control APK installation permission",v->{try{Intent i=new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);i.setData(Uri.parse("package:"+getPackageName()));startActivity(i);}catch(Exception e){startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));}},RED);setting(p,"About CyberShield AI","Original working security modules • v1.5 • "+CyberFeatures.variantName(),v->new AlertDialog.Builder(this).setTitle("CyberShield AI").setMessage("Working Android security modules: app audit, APK inspection, link analysis, notification scanning, call screening and network status.").setPositiveButton("OK",null).show(),PURPLE);nav(p,"home");mount(p);}
+    void setting(LinearLayout p,String a,String b,View.OnClickListener l,int ac){LinearLayout c=panel(p,Color.WHITE);title(c,a,b);Button x=btn("Open",ac);c.addView(x,new LinearLayout.LayoutParams(-1,dp(44)));x.setOnClickListener(l);}
+    void reports(){LinearLayout p=page();headerBack(p,"Security Reports","Latest local audit");int a=prefs.getInt("checked",0),r=prefs.getInt("risk",0);LinearLayout c=panel(p,r>0?Color.rgb(255,242,244):Color.WHITE);title(c,"Latest Security Audit","Apps checked: "+a+"  •  Indicators: "+r+"\nLast audit: "+prefs.getString("time","Not scanned yet"));Button b=primary("Run Audit Again");c.addView(b,new LinearLayout.LayoutParams(-1,dp(48)));b.setOnClickListener(v->audit());LinearLayout n=panel(p,Color.WHITE);title(n,"Network",SecurityEngine.networkStatus(this));nav(p,"reports");mount(p);}
+    void threats(){LinearLayout p=page();headerBack(p,"Threat Center","Observed indicators, not fake detections");int r=prefs.getInt("risk",0);LinearLayout c=panel(p,r>0?Color.rgb(255,242,244):Color.WHITE);title(c,r>0?"Indicators Need Review":"No Local App Indicators",r+" package-name indicators from the latest audit.");c.addView(txt("CyberShield AI separates observed indicators from confirmed malware verdicts.\n\nUse APK Guard for file analysis and Link Guard for URLs.",10,TEXT,false),new LinearLayout.LayoutParams(-1,dp(170)));nav(p,"threats");mount(p);}
+    void ai(){LinearLayout p=page();headerBack(p,"AI Assistant","Security guidance");LinearLayout c=panel(p,Color.rgb(239,233,255));title(c,"CyberShield AI","Transparent local security guidance. Cloud AI/reputation can be connected later.");EditText in=new EditText(this);in.setHint("Ask about an APK, link, message or call");in.setTextColor(TEXT);in.setHintTextColor(MUTED);c.addView(in,new LinearLayout.LayoutParams(-1,dp(58)));Button b=primary("Analyze Question");c.addView(b,new LinearLayout.LayoutParams(-1,dp(48)));TextView o=txt("Answer appears here.",10,TEXT,false);c.addView(o,new LinearLayout.LayoutParams(-1,dp(180)));b.setOnClickListener(v->o.setText(answer(in.getText().toString())));nav(p,"ai");mount(p);}
     String answer(String q){String x=q==null?"":q.toLowerCase(Locale.ROOT);if(x.contains("apk"))return"Use APK Guard to inspect SHA-256, package metadata, permissions, certificate and archive indicators. These checks do not prove malware.";if(x.contains("link")||x.contains("url"))return"Use Link Guard to inspect the domain, HTTPS and common phishing patterns. Avoid entering credentials on suspicious pages.";if(x.contains("message")||x.contains("sms")||x.contains("whatsapp"))return"Message Guard can inspect notification text only after explicit notification access. It cannot silently read private WhatsApp databases.";if(x.contains("call"))return"Call Guard uses Android's call-screening role and is conservative about blocking.";return"Start with Full Security Audit, then review App Security, APK Guard, Link Guard and Network status.";}
     @Override protected void onActivityResult(int requestCode,int resultCode,Intent data){super.onActivityResult(requestCode,resultCode,data);if(requestCode==APK&&resultCode==RESULT_OK&&data!=null&&data.getData()!=null){apk();apkOut.setText("Scanning selected APK…");Uri u=data.getData();new Thread(()->{String r=ApkScanner.scan(this,u);runOnUiThread(()->apkOut.setText(r));}).start();}else if(requestCode==CALL_ROLE)calls();}
 }
