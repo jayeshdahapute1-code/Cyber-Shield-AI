@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
             for(int j=0;j<2;j++){
                 String[] z=m[i+j];int ac=color(z[4]);LinearLayout c=panel(row,Color.WHITE);c.setPadding(dp(12),dp(11),dp(12),dp(10));
                 LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(145),1);lp.setMargins(j==0?0:dp(5),dp(3),j==1?0:dp(5),dp(3));row.removeView(c);row.addView(c,lp);
-                TextView ic=txt(z[0],25,ac,true);ic.setGravity(Gravity.CENTER);ic.setBackground(bg(Color.rgb(241,247,255),18,0));c.addView(ic,new LinearLayout.LayoutParams(dp(52),dp(52)));
+                TextView ic=txt(z[0],27,ac,true);ic.setGravity(Gravity.CENTER);ic.setBackground(bg(Color.rgb(241,247,255),18,0));c.addView(ic,new LinearLayout.LayoutParams(dp(54),dp(54)));
                 c.addView(txt(z[1],14,NAVY,true),new LinearLayout.LayoutParams(-1,dp(25)));
                 c.addView(txt(z[2],9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(34)));
                 LinearLayout bottom=new LinearLayout(this);bottom.setGravity(Gravity.CENTER_VERTICAL);
@@ -122,7 +122,7 @@ public class MainActivity extends Activity {
             } p.addView(row,new LinearLayout.LayoutParams(-1,dp(153)));
         }
         LinearLayout ai=panel(p,Color.rgb(239,233,255));LinearLayout ar=new LinearLayout(this);ar.setGravity(Gravity.CENTER_VERTICAL);
-        TextView bot=txt("✦",32,PURPLE,true);bot.setGravity(Gravity.CENTER);ar.addView(bot,new LinearLayout.LayoutParams(dp(60),dp(125)));
+        TextView bot=txt("✦",36,PURPLE,true);bot.setGravity(Gravity.CENTER);ar.addView(bot,new LinearLayout.LayoutParams(dp(60),dp(125)));
         LinearLayout at=new LinearLayout(this);at.setOrientation(LinearLayout.VERTICAL);at.addView(txt("AI Security Assistant",17,NAVY,true),new LinearLayout.LayoutParams(-1,dp(28)));at.addView(txt("Ask about apps, links, APKs, calls or messages",10,MUTED,false),new LinearLayout.LayoutParams(-1,dp(28)));
         Button ask=btn("Ask anything about your security...   ›",PURPLE);ask.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);ask.setBackground(bg(Color.WHITE,25,Color.rgb(196,177,255)));at.addView(ask,new LinearLayout.LayoutParams(-1,dp(42)));ar.addView(at,new LinearLayout.LayoutParams(0,dp(125),1));ai.addView(ar);ask.setOnClickListener(v->ai());
         LinearLayout status=panel(p,Color.WHITE);status.setOrientation(LinearLayout.HORIZONTAL);
