@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
     }
     LinearLayout page(){
         LinearLayout p=new LinearLayout(this); p.setOrientation(LinearLayout.VERTICAL);
-        p.setPadding(dp(8),dp(14),dp(8),dp(8)); p.setBackgroundColor(BG); return p;
+        p.setPadding(dp(10),dp(30),dp(10),dp(8)); p.setBackgroundColor(BG); return p;
     }
     void mount(LinearLayout p){ScrollView s=new ScrollView(this);s.setFillViewport(true);s.setBackgroundColor(BG);s.addView(p);setContentView(s);}
     void space(LinearLayout p,int h){p.addView(new Space(this),new LinearLayout.LayoutParams(1,dp(h)));}
@@ -67,17 +67,17 @@ public class MainActivity extends Activity {
     }
     void header(LinearLayout p){
         LinearLayout h=new LinearLayout(this);h.setGravity(Gravity.CENTER_VERTICAL);
-        ImageView shield=new ImageView(this);shield.setImageResource(R.drawable.cybershield_app_icon);shield.setScaleType(ImageView.ScaleType.CENTER_INSIDE);h.addView(shield,new LinearLayout.LayoutParams(dp(46),dp(46)));
+        ImageView shield=new ImageView(this);shield.setImageResource(R.drawable.cybershield_app_icon);shield.setScaleType(ImageView.ScaleType.CENTER_INSIDE);h.addView(shield,new LinearLayout.LayoutParams(dp(34),dp(34)));
         LinearLayout names=new LinearLayout(this);names.setOrientation(LinearLayout.VERTICAL);
         LinearLayout brand=new LinearLayout(this);
-        brand.addView(txt("CyberShield",21,NAVY,true),new LinearLayout.LayoutParams(-2,dp(31)));
-        brand.addView(txt(" AI",21,BLUE,true),new LinearLayout.LayoutParams(-2,dp(31)));
-        names.addView(brand,new LinearLayout.LayoutParams(-1,dp(31)));
-        names.addView(txt("Smart Protection for a Safer Digital Life",9,MUTED,false),new LinearLayout.LayoutParams(-1,dp(22)));
-        h.addView(names,new LinearLayout.LayoutParams(0,dp(46),1));
+        brand.addView(txt("CyberShield",20,NAVY,true),new LinearLayout.LayoutParams(-2,dp(29)));
+        brand.addView(txt(" AI",20,BLUE,true),new LinearLayout.LayoutParams(-2,dp(29)));
+        names.addView(brand,new LinearLayout.LayoutParams(-1,dp(29)));
+        names.addView(txt("Smart Protection for a Safer Digital Life",8,MUTED,false),new LinearLayout.LayoutParams(-1,dp(19)));
+        h.addView(names,new LinearLayout.LayoutParams(0,dp(42),1));
         TextView bell=txt("●",12,RED,true);bell.setGravity(Gravity.CENTER);h.addView(bell,new LinearLayout.LayoutParams(dp(30),dp(42)));
         TextView set=txt("⚙",23,NAVY,false);set.setGravity(Gravity.CENTER);set.setOnClickListener(v->settings());h.addView(set,new LinearLayout.LayoutParams(dp(38),dp(42)));
-        p.addView(h,new LinearLayout.LayoutParams(-1,dp(44)));
+        p.addView(h,new LinearLayout.LayoutParams(-1,dp(42)));
     }
     void nav(LinearLayout p,String active){
         space(p,8); LinearLayout n=new LinearLayout(this); n.setPadding(dp(5),dp(5),dp(5),dp(5)); n.setGravity(Gravity.CENTER);
